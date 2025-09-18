@@ -204,7 +204,7 @@ export default function ChatInterface({ initialMessage }: ChatInterfaceProps) {
               type="submit"
               size="icon"
               className="absolute top-1/2 -translate-y-1/2 right-2 rounded-full w-10 h-10 bg-primary hover:bg-primary/90"
-              disabled={isPending || !input.trim()}
+              disabled={isPending || (!input.trim() && !imageData)}
               aria-label="Send message"
             >
               <Send className="h-5 w-5" />
