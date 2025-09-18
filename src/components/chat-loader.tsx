@@ -1,0 +1,32 @@
+'use client';
+
+import dynamic from 'next/dynamic';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { Message } from '@/app/actions';
+
+const ChatInterfaceWithNoSSR = dynamic(
+  () => import('@/components/chat-interface'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex flex-col h-full p-4 space-y-4">
+        <div className="flex items-start gap-3">
+          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="h-16 w-1/2 rounded-2xl" />
+        </div>
+        <div className="flex items-start gap-3 justify-end">
+          <Skeleton className="h-10 w-1/3 rounded-2xl" />
+          <Skeleton className="h-10 w-10 rounded-full" />
+        </div>
+      </div>
+    ),
+  }
+);
+
+type ChatLoaderProps = {
+  initialMessage: Message;
+};
+
+export function ChatLoader({ initialMessage }: ChatLoaderProps) {
+  return <ChatInterfaceWithNoSSR initialMessage={initialMessage} />;
+}

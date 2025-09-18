@@ -1,7 +1,7 @@
 import { getInitialGreeting } from '@/app/actions';
-import ChatInterface from '@/components/chat-interface';
 import { Logo } from '@/components/icons';
 import { Bug, CloudSun, Landmark } from 'lucide-react';
+import { ChatLoader } from '@/components/chat-loader';
 
 export default async function Home() {
   const initialGreeting = await getInitialGreeting();
@@ -39,7 +39,7 @@ export default async function Home() {
         </div>
       </header>
       <main className="flex-1 overflow-hidden">
-        <ChatInterface initialMessage={initialMessage} />
+        <ChatLoader initialMessage={initialMessage} />
       </main>
     </div>
   );
