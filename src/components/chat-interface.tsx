@@ -115,9 +115,9 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   useImperativeHandle(ref, () => ({
     triggerAction: (action: 'weather' | 'schemes') => {
       if (action === 'weather') {
-        sendMessage('What is the weather forecast and advice for my farming activities this week?');
+        sendMessage('ഈ ആഴ്ചയിലെ എന്റെ കാർഷിക പ്രവർത്തനങ്ങൾക്കുള്ള കാലാവസ്ഥാ പ്രവചനവും ഉപദേശവും എന്താണ്?');
       } else if (action === 'schemes') {
-        sendMessage('What are the government schemes I can apply for?');
+        sendMessage('എനിക്ക് അപേക്ഷിക്കാൻ കഴിയുന്ന സർക്കാർ പദ്ധതികൾ ഏതൊക്കെയാണ്?');
       }
     },
   }));
