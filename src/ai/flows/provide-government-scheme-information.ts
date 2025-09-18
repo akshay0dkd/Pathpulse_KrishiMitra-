@@ -4,27 +4,21 @@
  * @fileOverview A flow that provides information about government schemes.
  *
  * - provideGovernmentSchemeInformation - A function that handles the retrieval of information about government schemes.
- * - ProvideGovernmentSchemeInformationInput - The input type for the provideGovernmentSchemeInformation function.
- * - ProvideGovernmentSchemeInformationOutput - The return type for the provideGovernmentSchemeInformation function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import type {
+  ProvideGovernmentSchemeInformationInput,
+  ProvideGovernmentSchemeInformationOutput,
+} from '@/ai/types/provide-government-scheme-information';
+import {
+  ProvideGovernmentSchemeInformationInputSchema,
+  ProvideGovernmentSchemeInformationOutputSchema,
+} from '@/ai/types/provide-government-scheme-information';
 
-const ProvideGovernmentSchemeInformationInputSchema = z.object({
-  query: z
-    .string()
-    .describe('The query about government schemes.'),
-});
-export type ProvideGovernmentSchemeInformationInput = z.infer<typeof ProvideGovernmentSchemeInformationInputSchema>;
-
-const ProvideGovernmentSchemeInformationOutputSchema = z.object({
-  response: z.string().describe('The information about government schemes in Malayalam.'),
-  englishTranslation: z.string().describe('The English translation of the response.')
-});
-export type ProvideGovernmentSchemeInformationOutput = z.infer<typeof ProvideGovernmentSchemeInformationOutputSchema>;
-
-export async function provideGovernmentSchemeInformation(input: ProvideGovernmentSchemeInformationInput): Promise<ProvideGovernmentSchemeInformationOutput> {
+export async function provideGovernmentSchemeInformation(
+  input: ProvideGovernmentSchemeInformationInput
+): Promise<ProvideGovernmentSchemeInformationOutput> {
   return provideGovernmentSchemeInformationFlow(input);
 }
 

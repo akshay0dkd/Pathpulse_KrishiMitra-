@@ -5,6 +5,7 @@ import { diagnoseWithPhoto } from '@/ai/flows/diagnose-with-photo';
 import { giveWeatherBasedAdvice } from '@/ai/flows/give-weather-based-advice';
 import { identifyPestDisease } from '@/ai/flows/identify-pest-disease-from-symptoms';
 import { provideGovernmentSchemeInformation } from '@/ai/flows/provide-government-scheme-information';
+import { processVoiceQuery } from '@/ai/flows/voice-mode-flow';
 
 export type Message = {
   id: string;
@@ -86,4 +87,18 @@ export async function processUserMessage(
     console.error('Error processing user message:', error);
     return 'ക്ഷമിക്കണം, ഒരു സാങ്കേതിക തകരാർ സംഭവിച്ചു. എനിക്ക് നിങ്ങളുടെ ചോദ്യം പ്രോസസ്സ് ചെയ്യാൻ കഴിഞ്ഞില്ല. ദയവായി വീണ്ടും ശ്രമിക്കുക.\n\n**(English):** Sorry, a technical error occurred. I could not process your request. Please try again.';
   }
+}
+
+export async function processVoiceModeMessage(
+  history: Message[],
+  message: string,
+): Promise<string> {
+    try {
+        const historyForAI = history.map(({id, image, ...rest}) => rest);
+        const result = await processVoiceQuery({query: message, history: historyForAI});
+        return result.response;
+    } catch (error) {
+        console.error("Error processing voice message:", error);
+        return "Sorry, I ran into a problem. Please try again.";
+    }
 }

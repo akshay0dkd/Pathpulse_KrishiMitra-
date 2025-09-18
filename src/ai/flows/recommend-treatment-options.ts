@@ -1,37 +1,20 @@
-// src/ai/flows/recommend-treatment-options.ts
 'use server';
 
 /**
  * @fileOverview Recommends treatment options for identified pests or diseases.
  *
  * - recommendTreatmentOptions - A function that recommends treatment options.
- * - RecommendTreatmentOptionsInput - The input type for the recommendTreatmentOptions function.
- * - RecommendTreatmentOptionsOutput - The return type for the recommendTreatmentOptions function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const RecommendTreatmentOptionsInputSchema = z.object({
-  pestOrDisease: z
-    .string()
-    .describe('The identified pest or disease affecting the crop.'),
-  crop: z.string().describe('The crop affected by the pest or disease.'),
-});
-export type RecommendTreatmentOptionsInput = z.infer<
-  typeof RecommendTreatmentOptionsInputSchema
->;
-
-const RecommendTreatmentOptionsOutputSchema = z.object({
-  treatmentRecommendations: z
-    .string()
-    .describe(
-      'Actionable advice and recommendations for organic and chemical treatments suitable for Kerala, India.'
-    ),
-});
-export type RecommendTreatmentOptionsOutput = z.infer<
-  typeof RecommendTreatmentOptionsOutputSchema
->;
+import type {
+  RecommendTreatmentOptionsInput,
+  RecommendTreatmentOptionsOutput,
+} from '@/ai/types/recommend-treatment-options';
+import {
+  RecommendTreatmentOptionsInputSchema,
+  RecommendTreatmentOptionsOutputSchema,
+} from '@/ai/types/recommend-treatment-options';
 
 export async function recommendTreatmentOptions(
   input: RecommendTreatmentOptionsInput

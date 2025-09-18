@@ -4,30 +4,17 @@
  * @fileOverview A flow to provide general farming advice based on seasonal weather conditions in Kerala.
  *
  * - giveWeatherBasedAdvice - A function that provides weather-based advice to farmers.
- * - GiveWeatherBasedAdviceInput - The input type for the giveWeatherBasedAdvice function.
- * - GiveWeatherBasedAdviceOutput - The return type for the giveWeatherBasedAdvice function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const GiveWeatherBasedAdviceInputSchema = z.object({
-    greeting: z.boolean().optional().describe("If true, generate only the initial greeting.")
-});
-export type GiveWeatherBasedAdviceInput = z.infer<
-  typeof GiveWeatherBasedAdviceInputSchema
->;
-
-const GiveWeatherBasedAdviceOutputSchema = z.object({
-  response: z
-    .string()
-    .describe(
-      'The initial greeting or response in Malayalam, followed by an English translation.'
-    ),
-});
-export type GiveWeatherBasedAdviceOutput = z.infer<
-  typeof GiveWeatherBasedAdviceOutputSchema
->;
+import type {
+  GiveWeatherBasedAdviceInput,
+  GiveWeatherBasedAdviceOutput,
+} from '@/ai/types/give-weather-based-advice';
+import {
+  GiveWeatherBasedAdviceInputSchema,
+  GiveWeatherBasedAdviceOutputSchema,
+} from '@/ai/types/give-weather-based-advice';
 
 export async function giveWeatherBasedAdvice(
   input: GiveWeatherBasedAdviceInput

@@ -4,36 +4,21 @@
  * @fileOverview A flow to identify pests or diseases from a photo.
  *
  * - diagnoseWithPhoto - A function that handles the plant diagnosis process from a photo.
- * - DiagnoseWithPhotoInput - The input type for the diagnoseWithPhoto function.
- * - DiagnoseWithPhotoOutput - The return type for the diagnoseWithPhoto function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import type {
+  DiagnoseWithPhotoInput,
+  DiagnoseWithPhotoOutput,
+} from '@/ai/types/diagnose-with-photo';
+import {
+  DiagnoseWithPhotoInputSchema,
+  DiagnoseWithPhotoOutputSchema,
+} from '@/ai/types/diagnose-with-photo';
 
-const DiagnoseWithPhotoInputSchema = z.object({
-  photoDataUri: z
-    .string()
-    .describe(
-      "A photo of a plant, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
-  crop: z.string().describe('The crop that is affected by the symptoms.'),
-});
-export type DiagnoseWithPhotoInput = z.infer<typeof DiagnoseWithPhotoInputSchema>;
-
-const DiagnoseWithPhotoOutputSchema = z.object({
-    pestOrDisease: z.string().describe("The identified pest or disease."),
-    confidence: z.number().describe("The confidence level (0-1) of the identification."),
-    recommendations: z
-      .string()
-      .describe("Specific, actionable advice and recommendations for treatment, including organic and chemical solutions, in Malayalam."),
-    englishTranslation: z
-      .string()
-      .describe("A concise and accurate English translation of the recommendations.")
-  });
-export type DiagnoseWithPhotoOutput = z.infer<typeof DiagnoseWithPhotoOutputSchema>;
-
-export async function diagnoseWithPhoto(input: DiagnoseWithPhotoInput): Promise<DiagnoseWithPhotoOutput> {
+export async function diagnoseWithPhoto(
+  input: DiagnoseWithPhotoInput
+): Promise<DiagnoseWithPhotoOutput> {
   return diagnoseWithPhotoFlow(input);
 }
 
