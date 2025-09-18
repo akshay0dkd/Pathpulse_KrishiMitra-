@@ -1,17 +1,22 @@
 import {z} from 'genkit';
 
 export const GiveWeatherBasedAdviceInputSchema = z.object({
-  // This input is currently not used, but kept for potential future use.
+  query: z.string().describe('The user query about weather.'),
 });
 export type GiveWeatherBasedAdviceInput = z.infer<
   typeof GiveWeatherBasedAdviceInputSchema
 >;
 
 export const GiveWeatherBasedAdviceOutputSchema = z.object({
-  response: z
+  malayalamResponse: z
     .string()
     .describe(
-      'The initial greeting or response in Malayalam, followed by an English translation.'
+      'The structured weather advisory response in simple Malayalam.'
+    ),
+  englishTranslation: z
+    .string()
+    .describe(
+      'A concise and accurate English translation of the Malayalam response.'
     ),
 });
 export type GiveWeatherBasedAdviceOutput = z.infer<

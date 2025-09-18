@@ -8,9 +8,9 @@ export type ProvideGovernmentSchemeInformationInput = z.infer<
 >;
 
 export const ProvideGovernmentSchemeInformationOutputSchema = z.object({
-  response: z
+  malayalamResponse: z
     .string()
-    .describe('The information about government schemes in Malayalam.'),
+    .describe('The structured information about government schemes in Malayalam.'),
   englishTranslation: z
     .string()
     .describe('The English translation of the response.'),

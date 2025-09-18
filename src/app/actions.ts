@@ -2,6 +2,7 @@
 'use server';
 
 import { diagnoseWithPhoto } from '@/ai/flows/diagnose-with-photo';
+import { giveWeatherBasedAdvice } from '@/ai/flows/give-weather-based-advice';
 import { identifyPestDisease } from '@/ai/flows/identify-pest-disease-from-symptoms';
 import { provideGovernmentSchemeInformation } from '@/ai/flows/provide-government-scheme-information';
 import { processVoiceQuery } from '@/ai/flows/voice-mode-flow';
@@ -44,10 +45,17 @@ export async function processUserMessage(
     const isSchemeQuery = /scheme|subsidy|loan|kisan|പദ്ധതി|സബ്സിഡി|ലോൺ|കിസാൻ/i.test(
       message
     );
-
     if (isSchemeQuery) {
       const result = await provideGovernmentSchemeInformation({ query: message });
-      return `${result.response}\n\n**(English):** ${result.englishTranslation}`;
+      return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
+    }
+
+    const isWeatherQuery = /weather|rain|monsoon|summer|കാലാവസ്ഥ|മഴ|വേനൽ/i.test(
+      message
+    );
+    if (isWeatherQuery) {
+        const result = await giveWeatherBasedAdvice({ query: message });
+        return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
     }
 
     const currentHistory = [...history, { id: 'current', role: 'user', content: message }];
