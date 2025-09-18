@@ -8,15 +8,10 @@ export type GiveWeatherBasedAdviceInput = z.infer<
 >;
 
 export const GiveWeatherBasedAdviceOutputSchema = z.object({
-  malayalamResponse: z
+  response: z
     .string()
     .describe(
-      'The structured weather advisory response in simple Malayalam.'
-    ),
-  englishTranslation: z
-    .string()
-    .describe(
-      'A concise and accurate English translation of the Malayalam response.'
+      'The structured weather advisory response in the same language as the query.'
     ),
 });
 export type GiveWeatherBasedAdviceOutput = z.infer<

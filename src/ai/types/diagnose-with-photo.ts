@@ -13,15 +13,10 @@ export type DiagnoseWithPhotoInput = z.infer<
 >;
 
 export const DiagnoseWithPhotoOutputSchema = z.object({
-  malayalamResponse: z
+  response: z
     .string()
     .describe(
-      'The full, structured response in simple Malayalam, following the 4-step format.'
-    ),
-  englishTranslation: z
-    .string()
-    .describe(
-      'A concise and accurate English translation of the full Malayalam response.'
+      'The full, structured response, following the 4-step format in the specified language.'
     ),
 });
 export type DiagnoseWithPhotoOutput = z.infer<
