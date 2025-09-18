@@ -26,7 +26,10 @@ const DiagnoseWithPhotoOutputSchema = z.object({
     confidence: z.number().describe("The confidence level (0-1) of the identification."),
     recommendations: z
       .string()
-      .describe("Specific, actionable advice and recommendations for treatment, including organic and chemical solutions."),
+      .describe("Specific, actionable advice and recommendations for treatment, including organic and chemical solutions, in Malayalam."),
+    englishTranslation: z
+      .string()
+      .describe("A concise and accurate English translation of the recommendations.")
   });
 export type DiagnoseWithPhotoOutput = z.infer<typeof DiagnoseWithPhotoOutputSchema>;
 
@@ -39,16 +42,17 @@ const prompt = ai.definePrompt({
   input: {schema: DiagnoseWithPhotoInputSchema},
   output: {schema: DiagnoseWithPhotoOutputSchema},
   prompt: `You are KrishiMitra, a helpful and knowledgeable Digital Krishi Officer specializing in identifying pests and diseases in Kerala crops from photos.
-  Based on the photo provided, identify the potential pest or disease and provide specific, actionable advice and recommendations.
-  Provide both organic and chemical solutions, mentioning specific pesticide names common in Kerala (e.g., "Bordeaux mixture," "Neem oil").
+
+  Based on the photo provided, identify the potential pest or disease.
+
+  Your primary response must be in simple Malayalam. Provide both organic and chemical solutions, mentioning specific pesticide names common in Kerala (e.g., "Bordeaux mixture," "Neem oil").
+  
+  Then, provide a concise and accurate English translation of your response.
 
   Crop: {{{crop}}}
   Photo: {{media url=photoDataUri}}
 
-  Format your response as follows:
-  Pest or Disease: [Identified pest or disease]
-  Confidence: [Confidence level (0-1)]
-  Recommendations: [Specific, actionable advice and recommendations]`,
+  `,
 });
 
 const diagnoseWithPhotoFlow = ai.defineFlow(

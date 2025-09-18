@@ -12,20 +12,17 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GiveWeatherBasedAdviceInputSchema = z.object({
-  season: z
-    .string()
-    .describe('The current season in Kerala (e.g., monsoon, summer, winter).'),
-  crop: z.string().optional().describe('The crop the user is growing.'),
+    greeting: z.boolean().optional().describe("If true, generate only the initial greeting.")
 });
 export type GiveWeatherBasedAdviceInput = z.infer<
   typeof GiveWeatherBasedAdviceInputSchema
 >;
 
 const GiveWeatherBasedAdviceOutputSchema = z.object({
-  advice: z
+  response: z
     .string()
     .describe(
-      'General farming advice based on the provided season in Kerala.'
+      'The initial greeting or response in Malayalam, followed by an English translation.'
     ),
 });
 export type GiveWeatherBasedAdviceOutput = z.infer<
@@ -42,16 +39,16 @@ const prompt = ai.definePrompt({
   name: 'giveWeatherBasedAdvicePrompt',
   input: {schema: GiveWeatherBasedAdviceInputSchema},
   output: {schema: GiveWeatherBasedAdviceOutputSchema},
-  prompt: `You are an expert agricultural advisor for Kerala farmers.
+  prompt: `You are KrishiMitra, a digital farming assistant for Kerala farmers.
+  
+  {{#if greeting}}
+  Generate the following initial greeting, exactly as written:
+  "നമസ്കാരം! ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി, ക്രിഷിമിത്രയാണ്. എന്നെ ഇംഗ്ലീഷിലോ മലയാളത്തിലോ ചോദിക്കാം. (Hello! I am your digital farming assistant, KrishiMitra. You can ask me in English or Malayalam.)
 
-  Provide general farming advice based on the current season: {{{season}}}.
-
-  If the user is growing a specific crop such as {{{crop}}}, tailor the advice to that crop.
-  Make sure that the advice is relevant to Kerala.
-
-  Respond primarily in Malayalam, using simple words. You can mix in common agricultural terms in English if they are widely understood.
-
-  Greet the user in Malayalam, introduce yourself as KrishiMitra, and ask how you can assist. Example: \"നമസ്കാരം, ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി ക്രിഷിമിത്രയാണ്. ഇന്ന് എന്താണ് സംഭവിക്കുന്നത്? (Hello, I am your digital farming assistant, KrishiMitra. What is happening today?)\".
+  ഇന്ന് എന്ത് സംഭവിക്കുന്നു? | What is happening today?"
+  {{else}}
+  The user has not provided any specific query. Ask them what they need help with. Respond in Malayalam first, then provide an English translation.
+  {{/if}}
   `,
 });
 

@@ -19,7 +19,8 @@ const ProvideGovernmentSchemeInformationInputSchema = z.object({
 export type ProvideGovernmentSchemeInformationInput = z.infer<typeof ProvideGovernmentSchemeInformationInputSchema>;
 
 const ProvideGovernmentSchemeInformationOutputSchema = z.object({
-  response: z.string().describe('The information about government schemes.'),
+  response: z.string().describe('The information about government schemes in Malayalam.'),
+  englishTranslation: z.string().describe('The English translation of the response.')
 });
 export type ProvideGovernmentSchemeInformationOutput = z.infer<typeof ProvideGovernmentSchemeInformationOutputSchema>;
 
@@ -31,13 +32,16 @@ const prompt = ai.definePrompt({
   name: 'provideGovernmentSchemeInformationPrompt',
   input: {schema: ProvideGovernmentSchemeInformationInputSchema},
   output: {schema: ProvideGovernmentSchemeInformationOutputSchema},
-  prompt: `You are KrishiMitra, a digital assistant for Kerala farmers. A farmer is asking about government schemes. Respond in Malayalam, but you can mix in common agricultural terms in English if they are widely understood.
+  prompt: `You are KrishiMitra, a digital assistant for Kerala farmers. A farmer is asking about government schemes. 
+  
+  Your primary response must be in simple Malayalam. Mention scheme names like "Sub-Mission on Agriculture Mechanization (SMAM)" or "PM-KISAN" and advise them to contact their local Krishi Bhavan for application details.
+  
+  If a query is too complex, vague, or involves legal/financial advice, simulate escalation. Say: "ഈ ചോദ്യത്തിന് കൂടുതൽ വിശദമായ പരിശോധന ആവശ്യമാണ്. ഞാൻ ഇത് കൃഷി ഭവനിലെ ഒരു കൃഷി ഓഫീസർക്ക് കൈമാറുന്നു. അവർ ഉടൻ നിങ്ങളെ ബന്ധപ്പെടും. നിങ്ങളുടെ ഫോൺ നമ്പർ രജിസ്റ്റർ ചെയ്തിട്ടുണ്ടെന്ന് ഉറപ്പാക്കുക."
+  
+  Then, provide a concise and accurate English translation of your response. For the escalation message, the translation should be: "This question requires a more detailed examination. I am escalating this to a local Agri Officer at the Krishi Bhavan. They will contact you shortly. Please ensure your phone number is registered."
 
   Here is the farmer's query: {{{query}}}
-
-  Mention scheme names like \"Sub-Mission on Agriculture Mechanization (SMAM)\" or \"PM-KISAN\" and advise them to contact their local Krishi Bhavan for application details.
-
-  If a query is too complex, vague, or involves legal/financial advice, simulate escalation. Say: \"ഈ ചോദ്യം കൂടുതൽ വിശദമായ പരിശോധന requires. I am escalating this to a local Agri Officer at the Krishi Bhavan. They will contact you shortly. Please ensure your phone number is registered.\"`,
+  `,
 });
 
 const provideGovernmentSchemeInformationFlow = ai.defineFlow(
