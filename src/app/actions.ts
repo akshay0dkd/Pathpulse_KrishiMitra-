@@ -32,6 +32,7 @@ function findCropInConversation(history: Message[]): string | null {
     'pepper': 'pepper', 'കുരുമുളക്': 'pepper',
     'rubber': 'rubber',
     'tapioca': 'tapioca', 'മരച്ചീനി': 'tapioca', 'കപ്പ': 'tapioca',
+    'mango': 'mango', 'മാങ്ങ': 'mango',
   };
 
   for (let i = history.length - 1; i >= 0; i--) {
@@ -69,8 +70,8 @@ export async function processUserMessage(
 
     if (imageDataUri) {
         const result = await diagnoseWithPhoto({ crop, photoDataUri: imageDataUri });
-        let response = `നിങ്ങളുടെ ഫോട്ടോ ലഭിച്ചു. ഇത് '${result.pestOrDisease}' ആകാൻ സാധ്യതയുണ്ട് (Confidence: ${Math.round(result.confidence * 100)}%).\n\n${result.recommendations}\n\n`;
-        response += `**(English):** Received your photo. This is likely '${result.pestOrDisease}' (Confidence: ${Math.round(result.confidence * 100)}%).\n\n${result.englishTranslation}`;
+        let response = `[Analyzing image...] Based on the photo, this is likely '${result.pestOrDisease}' (Confidence: ${Math.round(result.confidence * 100)}%).\n\n${result.recommendations}\n\n`;
+        response += `**(English):** ${result.englishTranslation}`;
         return response;
     }
     
@@ -78,8 +79,8 @@ export async function processUserMessage(
 
     const result = await identifyPestDisease({ crop, symptoms });
 
-    let response = `രോഗം കൃത്യമായി മനസിലാക്കാൻ ഒരു ഫോട്ടോ അപ്‌ലോഡ് ചെയ്യുന്നത് സഹായകമാകും. നിങ്ങൾ നൽകിയ വിവരങ്ങൾ അനുസരിച്ച്, ഇത് '${result.pestOrDisease}' ആകാൻ സാധ്യതയുണ്ട് (Confidence: ${Math.round(result.confidence * 100)}%).\n\n${result.recommendations}\n\n`;
-    response += `**(English):** Uploading a photo would be helpful for an accurate diagnosis. Based on the information you provided, this is likely '${result.pestOrDisease}' (Confidence: ${Math.round(result.confidence * 100)}%).\n\n${result.englishTranslation}`;
+    let response = `${result.recommendations}\n\n`;
+    response += `**(English):** ${result.englishTranslation}`;
     
     return response;
 
