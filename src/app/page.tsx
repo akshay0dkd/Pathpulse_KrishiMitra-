@@ -43,15 +43,15 @@ export default function Home() {
         <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
           <div className="flex items-center gap-2">
             <Bug className="h-5 w-5" />
-            <span>Pests & Diseases</span>
+            <span>Pests &amp; Diseases | കീടങ്ങളും രോഗങ്ങളും</span>
           </div>
           <button onClick={handleWeatherClick} className="flex items-center gap-2 hover:text-foreground transition-colors">
             <CloudSun className="h-5 w-5" />
-            <span>Weather</span>
+            <span>Weather | കാലാവസ്ഥ</span>
           </button>
           <button onClick={handleSchemesClick} className="flex items-center gap-2 hover:text-foreground transition-colors">
             <Landmark className="h-5 w-5" />
-            <span>Govt. Schemes</span>
+            <span>Govt. Schemes | പദ്ധതികൾ</span>
           </button>
         </div>
          <Button asChild variant="outline" size="sm">
