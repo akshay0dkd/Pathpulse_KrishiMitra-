@@ -62,7 +62,8 @@ export async function processUserMessage(
   try {
     const isSchemeQuery = /scheme|subsidy|loan|kisan|പദ്ധതി|സബ്സിഡി|ലോൺ|കിസാൻ/i.test(
       message
-    );
+    ) || message === "What are the government schemes I can apply for?";
+
     if (isSchemeQuery) {
       const result = await provideGovernmentSchemeInformation({ query: message });
       return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
@@ -70,7 +71,8 @@ export async function processUserMessage(
 
     const isWeatherQuery = /weather|rain|monsoon|summer|കാലാവസ്ഥ|മഴ|വേനൽ/i.test(
       message
-    );
+    ) || message === "What is the weather forecast and advice for my farming activities this week?";
+    
     if (isWeatherQuery) {
         const result = await giveWeatherBasedAdvice({ query: message });
         return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;

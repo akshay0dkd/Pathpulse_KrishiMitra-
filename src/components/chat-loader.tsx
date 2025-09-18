@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Message } from '@/app/actions';
+import { forwardRef } from 'react';
 
 const ChatInterfaceWithNoSSR = dynamic(
   () => import('@/components/chat-interface'),
@@ -27,6 +28,14 @@ type ChatLoaderProps = {
   initialMessage: Message;
 };
 
-export function ChatLoader({ initialMessage }: ChatLoaderProps) {
-  return <ChatInterfaceWithNoSSR initialMessage={initialMessage} />;
-}
+type ChatLoaderHandle = {
+  triggerAction: (action: 'weather' | 'schemes') => void;
+};
+
+export const ChatLoader = forwardRef<ChatLoaderHandle, ChatLoaderProps>(
+  ({ initialMessage }, ref) => {
+    return <ChatInterfaceWithNoSSR initialMessage={initialMessage} ref={ref} />;
+  }
+);
+
+ChatLoader.displayName = 'ChatLoader';

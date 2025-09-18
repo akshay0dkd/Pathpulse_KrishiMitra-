@@ -8,11 +8,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Bot, Send, User, BrainCircuit, Mic, Paperclip, X, EarOff } from 'lucide-react';
-import React, { useEffect, useRef, useState, useTransition } from 'react';
+import React, { useEffect, useRef, useState, useTransition, useImperativeHandle, forwardRef } from 'react';
 import Image from 'next/image';
 
 type ChatInterfaceProps = {
   initialMessage: MessageType;
+};
+
+type ChatInterfaceHandle = {
+  triggerAction: (action: 'weather' | 'schemes') => void;
 };
 
 const UserMessage = ({ content, image }: { content: string, image?: string }) => (
@@ -53,7 +57,7 @@ const TypingIndicator = () => (
     </div>
 )
 
-export default function ChatInterface({ initialMessage }: ChatInterfaceProps) {
+const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ initialMessage }, ref) => {
   const [messages, setMessages] = useState<MessageType[]>([initialMessage]);
   const [input, setInput] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -73,45 +77,23 @@ export default function ChatInterface({ initialMessage }: ChatInterfaceProps) {
     }
   }, [messages]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const dataUri = reader.result as string;
-        setImagePreview(URL.createObjectURL(file));
-        setImageData(dataUri);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if ((!input.trim() && !imageData) || isPending) return;
+  const sendMessage = (messageText: string, imageUri?: string, imagePreviewUri?: string) => {
+     if (isPending) return;
 
     const userMessage: MessageType = {
       id: crypto.randomUUID(),
       role: 'user',
-      content: input,
-      image: imagePreview || undefined,
+      content: messageText,
+      image: imagePreviewUri,
     };
     
     const currentMessages = [...messages, userMessage];
     setMessages(currentMessages);
-    const currentInput = input;
-    const currentImageData = imageData;
-    setInput('');
-    setImagePreview(null);
-    setImageData(null);
-    if(fileInputRef.current) {
-        fileInputRef.current.value = '';
-    }
 
     startTransition(async () => {
       const response = isVoiceMode 
-        ? await processVoiceModeMessage(currentMessages, currentInput)
-        : await processUserMessage(messages, currentInput, currentImageData || undefined);
+        ? await processVoiceModeMessage(currentMessages, messageText)
+        : await processUserMessage(messages, messageText, imageUri);
       
       const assistantMessage: MessageType = {
         id: crypto.randomUUID(),
@@ -128,6 +110,43 @@ export default function ChatInterface({ initialMessage }: ChatInterfaceProps) {
       }
       setMessages((prev) => [...prev, assistantMessage]);
     });
+  }
+
+  useImperativeHandle(ref, () => ({
+    triggerAction: (action: 'weather' | 'schemes') => {
+      if (action === 'weather') {
+        sendMessage('What is the weather forecast and advice for my farming activities this week?');
+      } else if (action === 'schemes') {
+        sendMessage('What are the government schemes I can apply for?');
+      }
+    },
+  }));
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUri = reader.result as string;
+        setImagePreview(URL.createObjectURL(file));
+        setImageData(dataUri);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if ((!input.trim() && !imageData) || isPending) return;
+
+    sendMessage(input, imageData || undefined, imagePreview || undefined);
+
+    setInput('');
+    setImagePreview(null);
+    setImageData(null);
+    if(fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
   };
   
   const clearImage = () => {
@@ -184,7 +203,7 @@ export default function ChatInterface({ initialMessage }: ChatInterfaceProps) {
             </Button>
           </div>
         )}
-        <form onSubmit={handleSendMessage} className="relative flex items-center gap-2">
+        <form onSubmit={handleFormSubmit} className="relative flex items-center gap-2">
            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
           <Button type="button" size="icon" variant="ghost" className="h-12 w-12 rounded-full" onClick={() => fileInputRef.current?.click()} disabled={isPending || isVoiceMode}>
             <Paperclip className="h-6 w-6" />
@@ -218,4 +237,7 @@ export default function ChatInterface({ initialMessage }: ChatInterfaceProps) {
       </div>
     </div>
   );
-}
+});
+
+ChatInterface.displayName = 'ChatInterface';
+export default ChatInterface;
