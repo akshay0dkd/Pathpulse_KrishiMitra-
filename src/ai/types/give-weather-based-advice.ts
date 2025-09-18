@@ -1,10 +1,7 @@
 import {z} from 'genkit';
 
 export const GiveWeatherBasedAdviceInputSchema = z.object({
-  greeting: z
-    .boolean()
-    .optional()
-    .describe('If true, generate only the initial greeting.'),
+  // This input is currently not used, but kept for potential future use.
 });
 export type GiveWeatherBasedAdviceInput = z.infer<
   typeof GiveWeatherBasedAdviceInputSchema

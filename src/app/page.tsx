@@ -1,12 +1,18 @@
-import { getInitialGreeting } from '@/app/actions';
 import { Logo } from '@/components/icons';
 import { Bug, CloudSun, Landmark } from 'lucide-react';
 import { ChatLoader } from '@/components/chat-loader';
+import type { Message } from '@/app/actions';
 
 export default async function Home() {
-  const initialGreeting = await getInitialGreeting();
+  const initialGreeting = `നമസ്കാരം! ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി, ക്രിഷിമിത്രയാണ്.
 
-  const initialMessage = {
+എന്നോട് ഇങ്ങനെ സംസാരിക്കാം:
+- **വോയ്സ്/വാചകം:** ഇംഗ്ലീഷിലോ മലയാളത്തിലോ ചോദിക്കാം.
+- **ഇമേജ് രോഗ നിർണയം:** ഒരു ഫോട്ടോയുടെ വിവരം നൽകാം (e.g., "ഇലകളിൽ വെളുത്ത പൊടി പോലെയുണ്ട്").
+
+ഇന്ന് എന്ത് സംഭവിക്കുന്നു? | What is happening today?`;
+
+  const initialMessage: Message = {
     id: 'init',
     role: 'assistant' as const,
     content: initialGreeting,

@@ -2,7 +2,6 @@
 'use server';
 
 import { diagnoseWithPhoto } from '@/ai/flows/diagnose-with-photo';
-import { giveWeatherBasedAdvice } from '@/ai/flows/give-weather-based-advice';
 import { identifyPestDisease } from '@/ai/flows/identify-pest-disease-from-symptoms';
 import { provideGovernmentSchemeInformation } from '@/ai/flows/provide-government-scheme-information';
 import { processVoiceQuery } from '@/ai/flows/voice-mode-flow';
@@ -13,16 +12,6 @@ export type Message = {
   content: string;
   image?: string;
 };
-
-export async function getInitialGreeting(): Promise<string> {
-  try {
-    const response = await giveWeatherBasedAdvice({ greeting: true });
-    return response.response;
-  } catch (error) {
-    console.error('Error getting initial greeting:', error);
-    return 'നമസ്കാരം! ഒരു സാങ്കേതിക തകരാർ കാരണം എനിക്ക് ഇപ്പോൾ നിങ്ങളെ സഹായിക്കാൻ കഴിയില്ല. (Hello! I am unable to assist you right now due to a technical issue.)';
-  }
-}
 
 function findCropInConversation(history: Message[]): string | null {
   const knownCrops: { [key: string]: string } = {
