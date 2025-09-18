@@ -1,4 +1,3 @@
-
 'use server';
 
 import { diagnoseWithPhoto } from '@/ai/flows/diagnose-with-photo';
@@ -6,6 +5,7 @@ import { giveWeatherBasedAdvice } from '@/ai/flows/give-weather-based-advice';
 import { identifyPestDisease } from '@/ai/flows/identify-pest-disease-from-symptoms';
 import { provideGovernmentSchemeInformation } from '@/ai/flows/provide-government-scheme-information';
 import { processVoiceQuery } from '@/ai/flows/voice-mode-flow';
+import { escalateQuery } from '@/ai/flows/escalate-query';
 
 export type Message = {
   id: string;
@@ -57,6 +57,14 @@ export async function processUserMessage(
         const result = await giveWeatherBasedAdvice({ query: message });
         return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
     }
+    
+    // Check for escalation keywords
+    const isEscalationQuery = /complex|difficult|officer|expert|വിദഗ്ദ്ധൻ|ഓഫീസർ/i.test(message);
+    if (isEscalationQuery) {
+        const result = await escalateQuery({ query: message });
+        return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
+    }
+
 
     const currentHistory = [...history, { id: 'current', role: 'user', content: message }];
     const crop = findCropInConversation(currentHistory);

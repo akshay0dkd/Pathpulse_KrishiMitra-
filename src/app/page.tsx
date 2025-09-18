@@ -2,8 +2,10 @@
 
 import { ChatLoader } from '@/components/chat-loader';
 import { Logo } from '@/components/icons';
-import { Bug, CloudSun, Landmark } from 'lucide-react';
+import { Bug, CloudSun, Landmark, ShieldQuestion } from 'lucide-react';
 import type { Message } from '@/app/actions';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function Home() {
   const initialGreeting = `നമസ്കാരം! ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി, ക്രിഷിമിത്രയാണ്. രോഗങ്ങൾ, കീടങ്ങൾ, എരുക്കൾ, കാലാവസ്ഥ എന്നിവയെപ്പറ്റി എന്ത് പ്രശ്നമാണോ അത് ചോദിക്കാം. ഒരു ഫോട്ടോയുടെ വിവരം നൽകാനും കഴിയും.\n\nHello! I am KrishiMitra, your digital farming assistant. You can ask me about crop problems, pests, fertilizers, or weather. You can also describe a problem with your plant.\n\nWhat is your question today?`;
@@ -39,6 +41,12 @@ export default function Home() {
             <span>Govt. Schemes</span>
           </div>
         </div>
+         <Button asChild variant="outline" size="sm">
+          <Link href="/dashboard">
+            <ShieldQuestion className="h-4 w-4 mr-2" />
+            Officer Dashboard
+          </Link>
+        </Button>
       </header>
       <main className="flex-1 overflow-hidden">
         <ChatLoader initialMessage={initialMessage} />
