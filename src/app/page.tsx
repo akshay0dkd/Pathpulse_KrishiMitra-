@@ -1,16 +1,12 @@
+import { ChatLoader } from '@/components/chat-loader';
 import { Logo } from '@/components/icons';
 import { Bug, CloudSun, Landmark } from 'lucide-react';
-import { ChatLoader } from '@/components/chat-loader';
 import type { Message } from '@/app/actions';
 
 export default async function Home() {
-  const initialGreeting = `നമസ്കാരം! ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി, ക്രിഷിമിത്രയാണ്.
+  const initialGreeting = `നമസ്കാരം! ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി, ക്രിഷിമിത്രയാണ്. രോഗങ്ങൾ, കീടങ്ങൾ, എരുക്കൾ, കാലാവസ്ഥ എന്നിവയെപ്പറ്റി എന്ത് പ്രശ്നമാണോ അത് ചോദിക്കാം. ഒരു ഫോട്ടോയുടെ വിവരം നൽകാനും കഴിയും.
 
-എന്നോട് ഇങ്ങനെ സംസാരിക്കാം:
-- **വോയ്സ്/വാചകം:** ഇംഗ്ലീഷിലോ മലയാളത്തിലോ ചോദിക്കാം.
-- **ഇമേജ് രോഗ നിർണയം:** ഒരു ഫോട്ടോയുടെ വിവരം നൽകാം (e.g., "ഇലകളിൽ വെളുത്ത പൊടി പോലെയുണ്ട്").
-
-ഇന്ന് എന്ത് സംഭവിക്കുന്നു? | What is happening today?`;
+Hello! I am KrishiMitra, your digital farming assistant. You can ask me about crop problems, pests, fertilizers, or weather. You can also describe a photo.`;
 
   const initialMessage: Message = {
     id: 'init',

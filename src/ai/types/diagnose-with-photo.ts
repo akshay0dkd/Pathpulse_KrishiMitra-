@@ -13,19 +13,15 @@ export type DiagnoseWithPhotoInput = z.infer<
 >;
 
 export const DiagnoseWithPhotoOutputSchema = z.object({
-  pestOrDisease: z.string().describe('The identified pest or disease.'),
-  confidence: z
-    .number()
-    .describe('The confidence level (0-1) of the identification.'),
-  recommendations: z
+  malayalamResponse: z
     .string()
     .describe(
-      'Specific, actionable advice and recommendations for treatment, including organic and chemical solutions, in Malayalam.'
+      'The full, structured response in simple Malayalam, following the 4-step format.'
     ),
   englishTranslation: z
     .string()
     .describe(
-      'A concise and accurate English translation of the recommendations.'
+      'A concise and accurate English translation of the full Malayalam response.'
     ),
 });
 export type DiagnoseWithPhotoOutput = z.infer<

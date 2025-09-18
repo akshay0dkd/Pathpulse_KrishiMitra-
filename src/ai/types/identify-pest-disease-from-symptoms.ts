@@ -19,19 +19,15 @@ export type IdentifyPestDiseaseInput = z.infer<
 >;
 
 export const IdentifyPestDiseaseOutputSchema = z.object({
-  pestOrDisease: z.string().describe('The identified pest or disease, or a clarifying question if the input is vague.'),
-  confidence: z
-    .number()
-    .describe('The confidence level (0-1) of the identification.'),
-  recommendations: z
+  malayalamResponse: z
     .string()
     .describe(
-      'Specific, actionable advice and recommendations for treatment, in simple Malayalam. If asking a question, this field contains the question. The response should always start with "[Analyzing image...]".'
+      'The full, structured response in simple Malayalam. This can be a clarifying question or a full diagnosis with advice, following the 4-step format.'
     ),
   englishTranslation: z
     .string()
     .describe(
-      'A concise and accurate English translation of the recommendations or question.'
+      'A concise and accurate English translation of the full Malayalam response.'
     ),
 });
 export type IdentifyPestDiseaseOutput = z.infer<

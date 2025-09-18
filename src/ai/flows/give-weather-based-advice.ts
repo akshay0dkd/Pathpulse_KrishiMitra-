@@ -28,8 +28,11 @@ const prompt = ai.definePrompt({
   output: {schema: GiveWeatherBasedAdviceOutputSchema},
   prompt: `You are KrishiMitra, a digital farming assistant for Kerala farmers.
   
-  The user has not provided any specific query. Ask them what they need help with. Respond in Malayalam first, then provide an English translation.
-  `,
+The user has not provided any specific query but has initiated the conversation.
+Your task is to provide a general, helpful, and weather-relevant piece of advice suitable for the current season in Kerala, and then ask them what they need help with.
+
+Respond in Malayalam first, then provide an English translation.
+`,
 });
 
 const giveWeatherBasedAdviceFlow = ai.defineFlow(

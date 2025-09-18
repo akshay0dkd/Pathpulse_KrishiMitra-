@@ -59,19 +59,14 @@ export async function processUserMessage(
 
     if (imageDataUri) {
         const result = await diagnoseWithPhoto({ crop, photoDataUri: imageDataUri });
-        let response = `[Analyzing image...] Based on the photo, this is likely '${result.pestOrDisease}' (Confidence: ${Math.round(result.confidence * 100)}%).\n\n${result.recommendations}\n\n`;
-        response += `**(English):** ${result.englishTranslation}`;
-        return response;
+        return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
     }
     
     const symptoms = message; 
 
     const result = await identifyPestDisease({ crop, symptoms });
-
-    let response = `${result.recommendations}\n\n`;
-    response += `**(English):** ${result.englishTranslation}`;
     
-    return response;
+    return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
 
   } catch (error) {
     console.error('Error processing user message:', error);
