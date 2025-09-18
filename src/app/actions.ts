@@ -22,7 +22,7 @@ function findCropInConversation(history: Message[]): string | null {
     'pepper': 'pepper', 'കുരുമുളക്': 'pepper',
     'rubber': 'rubber',
     'tapioca': 'tapioca', 'മരച്ചീനി': 'tapioca', 'കപ്പ': 'tapioca',
-    'mango': 'mango', 'മാങ്ങ': 'mango',
+    'mango': 'mango', 'മാങ്ങ': 'mango', 'മാവ്': 'mango',
   };
 
   for (let i = history.length - 1; i >= 0; i--) {
@@ -61,13 +61,14 @@ export async function processUserMessage(
     const currentHistory = [...history, { id: 'current', role: 'user', content: message }];
     const crop = findCropInConversation(currentHistory);
 
+    if (imageDataUri) {
+        const cropForPhoto = crop || 'unknown'; // Provide a default if no crop is found
+        const result = await diagnoseWithPhoto({ crop: cropForPhoto, photoDataUri: imageDataUri });
+        return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
+    }
+    
     if (!crop) {
       return 'മനസ്സിലായി. ഏത് വിളയിലാണ് ഈ പ്രശ്നം എന്ന് പറയാമോ?\n\n**(English):** Understood. Could you please specify which crop has this issue?';
-    }
-
-    if (imageDataUri) {
-        const result = await diagnoseWithPhoto({ crop, photoDataUri: imageDataUri });
-        return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
     }
     
     const symptoms = message; 
