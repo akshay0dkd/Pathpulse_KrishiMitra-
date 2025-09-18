@@ -1,6 +1,7 @@
 
 'use server';
 
+import { diagnoseWithPhoto } from '@/ai/flows/diagnose-with-photo';
 import { giveWeatherBasedAdvice } from '@/ai/flows/give-weather-based-advice';
 import { identifyPestDisease } from '@/ai/flows/identify-pest-disease-from-symptoms';
 import { provideGovernmentSchemeInformation } from '@/ai/flows/provide-government-scheme-information';
@@ -9,6 +10,7 @@ export type Message = {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  image?: string;
 };
 
 export async function getInitialGreeting(): Promise<string> {
@@ -44,7 +46,8 @@ function findCropInConversation(history: Message[]): string | null {
 
 export async function processUserMessage(
   history: Message[],
-  message: string
+  message: string,
+  imageDataUri?: string
 ): Promise<string> {
   try {
     const isSchemeQuery = /scheme|subsidy|loan|kisan|പദ്ധതി|സബ്സിഡി|ലോൺ|കിസാൻ/i.test(
@@ -61,6 +64,13 @@ export async function processUserMessage(
 
     if (!crop) {
       return 'മനസ്സിലായി. ഏത് വിളയിലാണ് ഈ പ്രശ്നം എന്ന് പറയാമോ? (Understood. Could you please specify which crop has this issue?)';
+    }
+
+    if (imageDataUri) {
+        const result = await diagnoseWithPhoto({ crop, photoDataUri: imageDataUri });
+        let response = `നിങ്ങളുടെ ഫോട്ടോ ലഭിച്ചു. ഇത് '${result.pestOrDisease}' ആകാൻ സാധ്യതയുണ്ട് (Confidence: ${Math.round(result.confidence * 100)}%).\n\n`;
+        response += `**ശുപാർശകൾ:**\n${result.recommendations}`;
+        return response;
     }
     
     // Assuming the latest message contains the primary symptoms
