@@ -14,26 +14,44 @@ export type Message = {
   image?: string;
 };
 
-function findCropInConversation(history: Message[]): string | null {
-  const knownCrops: { [key: string]: string } = {
-    'banana': 'banana', 'വാഴ': 'banana', 'പഴം': 'banana',
-    'rice': 'rice', 'നെല്ല്': 'rice', 'paddy': 'rice',
-    'coconut': 'coconut', 'തെങ്ങ്': 'coconut',
-    'pepper': 'pepper', 'കുരുമുളക്': 'pepper',
-    'rubber': 'rubber',
-    'tapioca': 'tapioca', 'മരച്ചീനി': 'tapioca', 'കപ്പ': 'tapioca',
-    'mango': 'mango', 'മാങ്ങ': 'mango', 'മാവ്': 'mango',
-  };
-
-  for (let i = history.length - 1; i >= 0; i--) {
-    const messageContent = history[i].content.toLowerCase();
-    for (const keyword in knownCrops) {
-      if (messageContent.includes(keyword)) {
-        return knownCrops[keyword];
-      }
+// MOCK DATABASE for crop_solutions
+// In a real app, this would be a Firestore query.
+const cropSolutionsDB: Record<string, Record<string, { ml: string; en: string }>> = {
+  "banana": {
+    "leaf spot": {
+      "ml": "തവിട്ട് പുള്ളി രോഗം. ബോർഡോ മിശ്രിതം (1%) തെളിക്കുക. 15 ദിവസം ഇടവേളയിൽ ആവർത്തിക്കുക.",
+      "en": "For Leaf Spot Disease, spray 1% Bordeaux mixture. Repeat every 15 days."
+    },
+    "aphids": {
+      "ml": "ആഫിഡ്സ്. നീം ഓയിൽ (5 മില്ലി/ലിറ്റർ വെള്ളം) തെളിക്കുക.",
+      "en": "For Aphids, spray Neem Oil (5ml per liter of water)."
+    },
+    "yellow leaves": {
+       "ml": "മഞ്ഞ ഇലകൾക്ക് കാരണം പോഷകക്കുറവ് ആകാം, പ്രത്യേകിച്ച് പൊട്ടാസ്യം. ജൈവവളം ചേർക്കുക. കൂടുതൽ വിവരങ്ങൾക്കായി കൃഷിഭവനുമായി ബന്ധപ്പെടുക.",
+       "en": "Yellow leaves could be due to nutrient deficiency, especially Potassium. Add organic manure. Contact Krishi Bhavan for more details."
     }
+  },
+  "rice": {
+      "fertilizer": {
+          "ml": "നെല്ലിന് സാധാരണയായി യൂറിയ, ഫാക്ടംഫോസ്, പൊട്ടാഷ് എന്നിവയാണ് നൽകുന്നത്. നിങ്ങളുടെ മണ്ണിന്റെ തരം അനുസരിച്ച് അളവിൽ മാറ്റം വരാം. കൃഷിഭവനിൽ ചോദിക്കുക.",
+          "en": "For rice, Urea, Factamfos, and Potash are commonly used. The amount depends on your soil type. Please ask at your Krishi Bhavan."
+      }
   }
-  return null;
+};
+
+
+function findSolution(crop: string, problem: string): { ml: string; en: string } | null {
+    const solutions = cropSolutionsDB[crop];
+    if (solutions && solutions[problem]) {
+        return solutions[problem];
+    }
+    // A more advanced version could check for partial matches in problem string
+    for (const key in solutions) {
+        if (problem.includes(key)) {
+            return solutions[key];
+        }
+    }
+    return null;
 }
 
 export async function processUserMessage(
@@ -57,33 +75,40 @@ export async function processUserMessage(
         const result = await giveWeatherBasedAdvice({ query: message });
         return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
     }
-    
-    // Check for escalation keywords
-    const isEscalationQuery = /complex|difficult|officer|expert|വിദഗ്ദ്ധൻ|ഓഫീസർ/i.test(message);
-    if (isEscalationQuery) {
-        const result = await escalateQuery({ query: message });
-        return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
-    }
-
-
-    const currentHistory = [...history, { id: 'current', role: 'user', content: message }];
-    const crop = findCropInConversation(currentHistory);
 
     if (imageDataUri) {
-        const cropForPhoto = crop || 'unknown'; // Provide a default if no crop is found
-        const result = await diagnoseWithPhoto({ crop: cropForPhoto, photoDataUri: imageDataUri });
+        const result = await diagnoseWithPhoto({ crop: 'unknown', photoDataUri: imageDataUri });
         return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
     }
-    
-    if (!crop) {
-      return 'മനസ്സിലായി. ഏത് വിളയിലാണ് ഈ പ്രശ്നം എന്ന് പറയാമോ?\n\n**(English):** Understood. Could you please specify which crop has this issue?';
-    }
-    
-    const symptoms = message; 
 
-    const result = await identifyPestDisease({ crop, symptoms });
-    
-    return `${result.malayalamResponse}\n\n**(English):** ${result.englishTranslation}`;
+    // New "Smart" Workflow
+    const analysis = await identifyPestDisease({ symptoms: message });
+
+    if (analysis.confidence === 'low' || analysis.crop === 'unknown' || analysis.problem === 'unknown') {
+      
+      if (analysis.crop === 'unknown' && analysis.problem !== 'unknown') {
+         return 'മനസ്സിലായി. ഏത് വിളയിലാണ് ഈ പ്രശ്നം എന്ന് പറയാമോ?\n\n**(English):** Understood. Could you please specify which crop has this issue?';
+      }
+      
+      // ESCALATE: Save to `escalated_queries` and tell user.
+      // In a real app, you would save this to Firestore.
+      console.log(`Escalating query: ${message}`);
+      const escalationResponse = await escalateQuery({ query: message });
+      return `${escalationResponse.malayalamResponse}\n\n**(English):** ${escalationResponse.englishTranslation}`;
+    }
+
+    // SEARCH KNOWLEDGE BASE
+    const solution = findSolution(analysis.crop, analysis.problem);
+
+    if (solution) {
+      // FOUND ANSWER: Return it
+      return `${solution.ml}\n\n**(English):** ${solution.en}`;
+    } else {
+      // If we get here, the crop/problem wasn't found in the DB -> ESCALATE
+      console.log(`Escalating query (solution not found): ${message}`);
+      const escalationResponse = await escalateQuery({ query: message });
+      return `${escalationResponse.malayalamResponse}\n\n**(English):** ${escalationResponse.englishTranslation}`;
+    }
 
   } catch (error) {
     console.error('Error processing user message:', error);

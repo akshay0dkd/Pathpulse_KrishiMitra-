@@ -4,9 +4,9 @@ export const IdentifyPestDiseaseInputSchema = z.object({
   symptoms: z
     .string()
     .describe(
-      'Description of the symptoms affecting the crop (e.g., leaf color, spot shape, affected crop).'
+      'The user query describing symptoms or asking a question.'
     ),
-  crop: z.string().describe('The crop that is affected by the symptoms.'),
+  crop: z.string().optional().describe('The crop mentioned in the conversation history.'),
   location: z
     .string()
     .optional()
@@ -19,17 +19,12 @@ export type IdentifyPestDiseaseInput = z.infer<
 >;
 
 export const IdentifyPestDiseaseOutputSchema = z.object({
-  malayalamResponse: z
-    .string()
-    .describe(
-      'The full, structured response in simple Malayalam. This can be a clarifying question or a full diagnosis with advice, following the 4-step format.'
-    ),
-  englishTranslation: z
-    .string()
-    .describe(
-      'A concise and accurate English translation of the full Malayalam response.'
-    ),
+  crop: z.string().describe('The crop name extracted from the query in lowercase. "unknown" if not found.'),
+  problem: z.string().describe('The specific problem extracted from the query in lowercase. "unknown" if not found.'),
+  confidence: z.enum(['high', 'medium', 'low']).describe('The confidence level of the analysis.'),
+  explanation: z.string().describe('A brief explanation of why the confidence level was chosen.'),
 });
+
 export type IdentifyPestDiseaseOutput = z.infer<
   typeof IdentifyPestDiseaseOutputSchema
 >;
