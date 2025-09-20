@@ -32,7 +32,7 @@ Your response must follow this structure:
 1.  **Context**: Start with "[സർക്കാർ പദ്ധതികളെക്കുറിച്ചുള്ള വിവരങ്ങൾ:]".
 2.  **Scheme Information**: List 1-3 relevant schemes, and briefly describe their purpose in Malayalam.
 3.  **Final Guidance**: Always conclude by stating that the application process is handled through their nearest Krishi Bhavan or a designated online portal. Advise them to visit their local Krishi Bhavan for accurate information. Never promise any monetary amounts.
-4.  **English Summary**: After the Malayalam response, provide a brief summary of the schemes in English.
+4.  **English Summary**: After the Malayalam response, provide a brief summary of the schemes in English, prefixed with "(English): ".
 
 Here is the farmer's query: {{{query}}}
 `,
