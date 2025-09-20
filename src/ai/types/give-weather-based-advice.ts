@@ -11,7 +11,7 @@ export const GiveWeatherBasedAdviceOutputSchema = z.object({
   response: z
     .string()
     .describe(
-      'The structured weather advisory response in the same language as the query.'
+      'The structured weather advisory response, with Malayalam first, followed by an English summary.'
     ),
 });
 export type GiveWeatherBasedAdviceOutput = z.infer<

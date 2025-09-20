@@ -10,7 +10,7 @@ export type ProvideGovernmentSchemeInformationInput = z.infer<
 export const ProvideGovernmentSchemeInformationOutputSchema = z.object({
   response: z
     .string()
-    .describe('The structured information about government schemes in the same language as the query.'),
+    .describe('The structured information about government schemes, with Malayalam first, followed by an English summary.'),
 });
 export type ProvideGovernmentSchemeInformationOutput = z.infer<
   typeof ProvideGovernmentSchemeInformationOutputSchema
