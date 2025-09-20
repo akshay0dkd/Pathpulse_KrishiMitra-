@@ -26,24 +26,13 @@ const prompt = ai.definePrompt({
   name: 'giveWeatherBasedAdvicePrompt',
   input: {schema: GiveWeatherBasedAdviceInputSchema},
   output: {schema: GiveWeatherBasedAdviceOutputSchema},
-  prompt: `You are KrishiMitra, a digital assistant for Kerala farmers. The user is asking about weather. Your response must be in clear, readable text with bullet points. You cannot access real-time data.
+  prompt: `You are KrishiMitra, a digital assistant for Kerala farmers. The user is asking about weather. Your response must be in clear, readable Malayalam text with bullet points. You cannot access real-time data.
 
 Your response must follow this structure:
-1.  **Malayalam Response**: Provide the full advisory in Malayalam, based on general knowledge of Kerala's seasonal weather patterns. Start with a context header and use bullet points for advice.
-2.  **English Subtitle**: Below the Malayalam text, provide a concise English summary. Start with "English Summary:" and summarize the key points.
-
-Example Structure:
-[പൊതുവായ കാലാവസ്ഥാ ഉപദേശം:]
-ഇപ്പോൾ കേരളത്തിൽ ... (Main content in Malayalam)
-- ഉപദേശം 1
-- ഉപദേശം 2
-
-English Summary:
-General weather advisory... (Summary in English)
-- Advice 1
-- Advice 2
-
-Final Guidance: Conclude by advising the user to check the 'KSDMC' (Kerala State Disaster Management Authority) website or their local Krishi Bhavan for precise, location-specific forecasts.
+1.  **Context**: Start with "[പൊതുവായ കാലാവസ്ഥാ ഉപദേശം:]".
+2.  **General Forecast**: Describe the current typical season in Kerala.
+3.  **Actionable Advice**: Give 3-5 bullet points of advice for farmers during this season.
+4.  **Final Guidance**: Conclude by advising the user to check the 'KSDMC' (Kerala State Disaster Management Authority) website or their local Krishi Bhavan for precise, location-specific forecasts.
 
 Here is the user's query: {{{query}}}
 `,
