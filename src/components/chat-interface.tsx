@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Bot, Send, User, BrainCircuit, Mic, Paperclip, X, EarOff } from 'lucide-react';
+import { Bot, Send, User, BrainCircuit, Mic, Paperclip, X, EarOff, Ear } from 'lucide-react';
 import React, { useEffect, useRef, useState, useTransition, useImperativeHandle, forwardRef } from 'react';
 import Image from 'next/image';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 
 type ChatInterfaceProps = {
   initialMessage: MessageType;
@@ -115,7 +116,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   useImperativeHandle(ref, () => ({
     triggerAction: (action: 'weather' | 'schemes') => {
       if (action === 'weather') {
-        sendMessage('ഈ ആഴ്ചയിലെ എന്റെ കാർഷിക പ്രവർത്തനങ്ങൾക്കുള്ള കാലാവസ്ഥാ പ്രവചനവും ഉപദേശവും എന്താണ്?');
+        sendMessage('ഈ ആഴ്ചയിലെ കാലാവസ്ഥാ പ്രവചനം എന്താണ്?');
       } else if (action === 'schemes') {
         sendMessage('എനിക്ക് അപേക്ഷിക്കാൻ കഴിയുന്ന സർക്കാർ പദ്ധതികൾ ഏതൊക്കെയാണ്?');
       }
@@ -230,10 +231,28 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
             </Button>
           </div>
         </form>
-         <p className="text-center text-xs text-muted-foreground mt-2 flex items-center justify-center gap-1.5">
-            <BrainCircuit className="h-3 w-3" />
-            <span>Powered by AI. Responses may be experimental.</span>
-        </p>
+         <Accordion type="single" collapsible className="w-full mt-2">
+          <AccordionItem value="item-1" className="border-none">
+            <AccordionTrigger className="text-xs text-muted-foreground justify-center py-1 hover:no-underline">
+               <BrainCircuit className="h-3 w-3 mr-1.5" />
+               Powered by AI. How does it work?
+            </AccordionTrigger>
+            <AccordionContent className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-md">
+              <div className="flex gap-4">
+                <div className='text-center flex-1 p-2 rounded-md bg-background/50'>
+                  <Ear className="h-5 w-5 mx-auto text-primary mb-1"/>
+                  <h4 className='font-bold mb-1'>1. The Ears (NLP)</h4>
+                  <p>First, Natural Language Processing (NLP) helps the system understand your query, whether it's in Malayalam, English, or by photo. It figures out the key topics, like 'banana' and 'leaf spot'.</p>
+                </div>
+                <div className='text-center flex-1 p-2 rounded-md bg-background/50'>
+                  <BrainCircuit className="h-5 w-5 mx-auto text-primary mb-1"/>
+                  <h4 className='font-bold mb-1'>2. The Brain (LLM)</h4>
+                  <p>Then, a Large Language Model (LLM) acts as the expert. It takes the structured information from the NLP step and generates a helpful, detailed response in our bilingual format.</p>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     </div>
   );
@@ -241,3 +260,5 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
 
 ChatInterface.displayName = 'ChatInterface';
 export default ChatInterface;
+
+    
