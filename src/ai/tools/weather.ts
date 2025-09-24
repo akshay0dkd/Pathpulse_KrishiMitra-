@@ -43,48 +43,54 @@ export const getWeatherTool = ai.defineTool(
       throw new Error('OPENWEATHER_API_KEY is not defined in the environment.');
     }
     
-    const weatherUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&appid=${apiKey}&units=metric`;
-    const geoUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`;
-
+    // Use the current free API endpoints
+    const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+    
     try {
-      // Fetch weather data first, as it's the most critical part.
-      const weatherResponse = await fetch(weatherUrl);
-      if (!weatherResponse.ok) {
-        const errorText = await weatherResponse.text();
-        console.error('OpenWeatherMap API error:', errorText);
-        throw new Error(`Failed to fetch weather data: ${weatherResponse.statusText}`);
-      }
-      const weatherData = await weatherResponse.json();
+      // Fetch current weather and forecast data in parallel
+      const [currentResponse, forecastResponse] = await Promise.all([
+        fetch(currentUrl),
+        fetch(forecastUrl),
+      ]);
 
-      // Fetch location name with a fallback.
-      let locationName = 'Unknown Location';
-      try {
-        const geoResponse = await fetch(geoUrl);
-        if (geoResponse.ok) {
-            const geoData = await geoResponse.json();
-            if (geoData[0]) {
-                locationName = `${geoData[0].name}, ${geoData[0].state || geoData[0].country}`;
-            }
-        }
-      } catch (geoError) {
-          console.error('Could not fetch location name, but proceeding with weather data:', geoError);
-          // Don't re-throw; we can proceed without the location name.
+      if (!currentResponse.ok) {
+        throw new Error(`Failed to fetch current weather: ${currentResponse.statusText}`);
       }
+      if (!forecastResponse.ok) {
+        throw new Error(`Failed to fetch forecast: ${forecastResponse.statusText}`);
+      }
+
+      const currentData = await currentResponse.json();
+      const forecastData = await forecastResponse.json();
+
+      // Process forecast data to get one entry per day for the next 3 days
+      const dailyForecasts: any = {};
+      forecastData.list.forEach((item: any) => {
+          const date = new Date(item.dt * 1000).toISOString().split('T')[0];
+          // Check if it's not today
+          const today = new Date().toISOString().split('T')[0];
+          if (date > today && !dailyForecasts[date]) {
+              dailyForecasts[date] = {
+                  dt: item.dt,
+                  temp: { day: item.main.temp },
+                  weather: [{ main: item.weather[0].main }],
+              };
+          }
+      });
+      
+      const daily = Object.values(dailyForecasts).slice(0, 3);
       
       return {
-        locationName,
+        locationName: `${currentData.name}, ${currentData.sys.country}`,
         current: {
-            temp: weatherData.current.temp,
+            temp: currentData.main.temp,
             weather: {
-                main: weatherData.current.weather[0].main,
-                description: weatherData.current.weather[0].description,
+                main: currentData.weather[0].main,
+                description: currentData.weather[0].description,
             },
         },
-        daily: weatherData.daily.slice(1, 4).map((d: any) => ({ // Get next 3 days
-            dt: d.dt,
-            temp: { day: d.temp.day },
-            weather: [{ main: d.weather[0].main }],
-        })),
+        daily: daily as any, // Cast as we have manually built this structure
       };
 
     } catch (error) {
