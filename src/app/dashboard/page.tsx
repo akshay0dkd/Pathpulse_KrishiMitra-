@@ -42,7 +42,7 @@ export default function OfficerDashboard() {
         <div className="container mx-auto flex items-center justify-between">
           <h1 className="text-xl font-semibold">Officer Dashboard</h1>
            <Button variant="outline" asChild>
-              <Link href="/">
+              <Link href="/chat">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Chat
               </Link>
