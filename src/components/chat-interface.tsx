@@ -7,11 +7,13 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Bot, Send, User, BrainCircuit, Mic, X, EarOff, Ear, Camera } from 'lucide-react';
+import { Bot, Send, User, BrainCircuit, Mic, X, EarOff, Ear, Camera, Upload, Video } from 'lucide-react';
 import React, { useEffect, useRef, useState, useTransition, useImperativeHandle, forwardRef } from 'react';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { HowItWorksGuide } from './how-it-works-guide';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { CameraCapture } from './camera-capture';
 
 type ChatInterfaceProps = {
   initialMessage: MessageType;
@@ -68,6 +70,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   const [imageData, setImageData] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [isCameraDialogOpen, setCameraDialogOpen] = useState(false);
+  const [isCameraCaptureOpen, setCameraCaptureOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -80,6 +84,20 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
       });
     }
   }, [messages]);
+  
+  useEffect(() => {
+    if (imageData) {
+      const messageContent = input || 'Please analyze this image.';
+      sendMessage(messageContent, language, imageData, imagePreview || undefined);
+      
+      setInput('');
+      setImagePreview(null);
+      setImageData(null);
+      if(fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  }, [imageData]);
 
   const sendMessage = (messageText: string, lang: string, imageUri?: string, imagePreviewUri?: string) => {
      if (isPending) return;
@@ -142,6 +160,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setCameraDialogOpen(false);
       const reader = new FileReader();
       reader.onloadend = () => {
         const dataUri = reader.result as string;
@@ -154,18 +173,18 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if ((!input.trim() && !imageData) || isPending) return;
-
-    sendMessage(input, language, imageData || undefined, imagePreview || undefined);
-
+    if (!input.trim() || isPending) return;
+    sendMessage(input, language);
     setInput('');
-    setImagePreview(null);
-    setImageData(null);
-    if(fileInputRef.current) {
-        fileInputRef.current.value = '';
-    }
   };
   
+  const handlePhotoTaken = (dataUri: string) => {
+    setCameraCaptureOpen(false);
+    setCameraDialogOpen(false);
+    setImagePreview(dataUri);
+    setImageData(dataUri);
+  }
+
   const clearImage = () => {
     setImagePreview(null);
     setImageData(null);
@@ -215,7 +234,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
       </ScrollArea>
 
       <div className="border-t bg-card p-4">
-        {imagePreview && !isVoiceMode && (
+        {imagePreview && !isPending && (
           <div className="relative w-24 h-24 mb-2">
             <Image src={imagePreview} alt="Image preview" layout="fill" objectFit="cover" className="rounded-md" />
             <Button size="icon" variant="destructive" className="absolute -top-2 -right-2 h-6 w-6 rounded-full" onClick={clearImage}>
@@ -224,15 +243,44 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
           </div>
         )}
         <form onSubmit={handleFormSubmit} className="relative flex items-center gap-2">
-           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" capture="environment" className="hidden" />
+           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+           
            <Button type="button" size="icon" variant={isVoiceMode ? "secondary" : "ghost"} className="h-12 w-12 rounded-full" onClick={toggleVoiceMode} disabled={isPending}>
             {isVoiceMode ? <EarOff className="h-6 w-6 text-destructive" /> : <Mic className="h-6 w-6" />}
           </Button>
-
-          <Button type="button" size="icon" variant="outline" className="h-12 w-12 rounded-full" onClick={() => fileInputRef.current?.click()} disabled={isPending || isVoiceMode}>
-            <Camera className="h-6 w-6" />
-          </Button>
           
+          <Dialog open={isCameraDialogOpen} onOpenChange={setCameraDialogOpen}>
+            <DialogTrigger asChild>
+                <Button type="button" size="icon" variant="outline" className="h-12 w-12 rounded-full" disabled={isPending || isVoiceMode}>
+                    <Camera className="h-6 w-6" />
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Add an Image</DialogTitle>
+                </DialogHeader>
+                <div className='grid grid-cols-2 gap-4'>
+                    <Button variant="outline" size="lg" className="h-24 flex-col" onClick={() => setCameraCaptureOpen(true)}>
+                        <Video className='h-8 w-8 mb-2'/>
+                        Take Photo with Camera
+                    </Button>
+                    <Button variant="outline" size="lg" className="h-24 flex-col" onClick={() => fileInputRef.current?.click()}>
+                        <Upload className='h-8 w-8 mb-2'/>
+                        Upload from Library
+                    </Button>
+                </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={isCameraCaptureOpen} onOpenChange={setCameraCaptureOpen}>
+                <DialogContent className='max-w-3xl'>
+                    <DialogHeader>
+                        <DialogTitle>Camera Capture</DialogTitle>
+                    </DialogHeader>
+                    <CameraCapture onPhotoTaken={handlePhotoTaken} />
+                </DialogContent>
+          </Dialog>
+
           <div className="relative flex-1">
             <Input
               value={input}
@@ -245,7 +293,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
               type="submit"
               size="icon"
               className="absolute top-1/2 -translate-y-1/2 right-2 rounded-full w-10 h-10 bg-primary hover:bg-primary/90"
-              disabled={isPending || (!input.trim() && !imageData)}
+              disabled={isPending || !input.trim()}
               aria-label="Send message"
             >
               <Send className="h-5 w-5" />
