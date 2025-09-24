@@ -96,15 +96,15 @@ export default function ChatPage() {
     <>
         <div className="flex items-center gap-2 text-muted-foreground">
           <Bug className="h-5 w-5 text-primary/80" />
-          <span className="text-sm">Pests & Diseases | കീടങ്ങളും രോഗങ്ങളും</span>
+          <span className="text-sm">Pests & Diseases</span>
         </div>
         <button onClick={handleWeatherClick} className="flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground">
           <CloudSun className="h-5 w-5 text-primary/80" />
-          <span className="text-sm">Weather | കാലാവസ്ഥ</span>
+          <span className="text-sm">Weather</span>
         </button>
         <button onClick={handleSchemesClick} className="flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground">
           <Landmark className="h-5 w-5 text-primary/80" />
-          <span className="text-sm">Govt. Schemes | പദ്ധതികൾ</span>
+          <span className="text-sm">Govt. Schemes</span>
         </button>
     </>
   )

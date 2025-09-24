@@ -9,17 +9,14 @@ const guideSteps = [
     {
       icon: <Camera className="h-8 w-8 text-primary" />,
       text: "Take a Photo",
-      translation: "छायाचित्र घ्या",
     },
     {
       icon: <FileText className="h-8 w-8 text-primary" />,
       text: "Get Diagnosis",
-      translation: "निदान पहा",
     },
     {
       icon: <Pill className="h-8 w-8 text-primary" />,
       text: "Find Treatment",
-      translation: "औषध मिळवा",
     },
 ];
 
@@ -36,8 +33,7 @@ export function HowItWorksGuide() {
                     <div className="bg-primary/10 p-3 rounded-full">
                         {step.icon}
                     </div>
-                    <p className="text-xs font-semibold text-foreground">{step.text}</p>
-                    <p className="text-xs text-muted-foreground">{step.translation}</p>
+                    <p className="text-sm font-semibold text-foreground">{step.text}</p>
                 </div>
                 {index < guideSteps.length - 1 && (
                     <div className="text-muted-foreground/50 text-2xl font-light">{'>'}</div>
