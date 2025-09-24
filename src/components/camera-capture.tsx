@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import Webcam from 'react-webcam';
 import { Button } from './ui/button';
 import { Camera, Check, RefreshCw } from 'lucide-react';
@@ -25,14 +25,26 @@ export function CameraCapture({ onPhotoTaken }: CameraCaptureProps) {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleUserMediaError = () => {
-    setCameraError('Camera access was denied or is not available. Please check your browser permissions.');
-    toast({
-        variant: 'destructive',
-        title: 'Camera Error',
-        description: 'Could not access the camera. Please ensure permissions are granted in your browser settings.'
-    });
-  }
+  useEffect(() => {
+    // Check for permissions as soon as the component mounts
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        // We have permission, we can stop the stream immediately
+        // as react-webcam will handle it from here.
+        stream.getTracks().forEach(track => track.stop());
+        setCameraError(null);
+      })
+      .catch(err => {
+        console.error("Camera permission error:", err);
+        setCameraError('Camera access was denied or is not available. Please check your browser settings and ensure you are on a secure (HTTPS) connection.');
+        toast({
+          variant: 'destructive',
+          title: 'Camera Error',
+          description: 'Could not access the camera. Please ensure permissions are granted in your browser settings.'
+        });
+      });
+  }, [toast]);
+
 
   const capture = useCallback(() => {
     if (webcamRef.current) {
@@ -83,7 +95,10 @@ export function CameraCapture({ onPhotoTaken }: CameraCaptureProps) {
             screenshotFormat="image/jpeg"
             videoConstraints={videoConstraints}
             className="w-full h-auto rounded-md"
-            onUserMediaError={handleUserMediaError}
+            onUserMediaError={() => {
+                // This is a fallback
+                setCameraError('Camera access was denied or is not available. Please check your browser permissions.');
+            }}
           />
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
             <Button size="icon" className="w-16 h-16 rounded-full" onClick={capture}>

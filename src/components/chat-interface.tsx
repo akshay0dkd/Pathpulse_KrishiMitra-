@@ -63,6 +63,8 @@ const TypingIndicator = () => (
     </div>
 )
 
+type DialogMode = 'closed' | 'picker' | 'camera';
+
 const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ initialMessage, language }, ref) => {
   const [messages, setMessages] = useState<MessageType[]>([initialMessage]);
   const [input, setInput] = useState('');
@@ -70,8 +72,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   const [imageData, setImageData] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isVoiceMode, setIsVoiceMode] = useState(false);
-  const [isCameraDialogOpen, setCameraDialogOpen] = useState(false);
-  const [isCameraCaptureOpen, setCameraCaptureOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<DialogMode>('closed');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -160,7 +161,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setCameraDialogOpen(false);
+      setDialogMode('closed');
       const reader = new FileReader();
       reader.onloadend = () => {
         const dataUri = reader.result as string;
@@ -179,8 +180,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   };
   
   const handlePhotoTaken = (dataUri: string) => {
-    setCameraCaptureOpen(false);
-    setCameraDialogOpen(false);
+    setDialogMode('closed');
     setImagePreview(dataUri);
     setImageData(dataUri);
   }
@@ -249,36 +249,39 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
             {isVoiceMode ? <EarOff className="h-6 w-6 text-destructive" /> : <Mic className="h-6 w-6" />}
           </Button>
           
-          <Dialog open={isCameraDialogOpen} onOpenChange={setCameraDialogOpen}>
+          <Dialog open={dialogMode !== 'closed'} onOpenChange={(open) => setDialogMode(open ? 'picker' : 'closed')}>
             <DialogTrigger asChild>
                 <Button type="button" size="icon" variant="outline" className="h-12 w-12 rounded-full" disabled={isPending || isVoiceMode}>
                     <Camera className="h-6 w-6" />
                 </Button>
             </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
+            <DialogContent className={dialogMode === 'camera' ? 'max-w-3xl' : 'sm:max-w-[425px]'}>
+              {dialogMode === 'picker' && (
+                <>
+                  <DialogHeader>
                     <DialogTitle>Add an Image</DialogTitle>
-                </DialogHeader>
-                <div className='grid grid-cols-2 gap-4'>
-                    <Button variant="outline" size="lg" className="h-24 flex-col" onClick={() => setCameraCaptureOpen(true)}>
-                        <Video className='h-8 w-8 mb-2'/>
-                        Take Photo with Camera
-                    </Button>
-                    <Button variant="outline" size="lg" className="h-24 flex-col" onClick={() => fileInputRef.current?.click()}>
-                        <Upload className='h-8 w-8 mb-2'/>
-                        Upload from Library
-                    </Button>
-                </div>
+                  </DialogHeader>
+                  <div className='grid grid-cols-2 gap-4'>
+                      <Button variant="outline" size="lg" className="h-24 flex-col" onClick={() => setDialogMode('camera')}>
+                          <Video className='h-8 w-8 mb-2'/>
+                          Take Photo with Camera
+                      </Button>
+                      <Button variant="outline" size="lg" className="h-24 flex-col" onClick={() => fileInputRef.current?.click()}>
+                          <Upload className='h-8 w-8 mb-2'/>
+                          Upload from Library
+                      </Button>
+                  </div>
+                </>
+              )}
+              {dialogMode === 'camera' && (
+                <>
+                  <DialogHeader>
+                      <DialogTitle>Camera Capture</DialogTitle>
+                  </DialogHeader>
+                  <CameraCapture onPhotoTaken={handlePhotoTaken} />
+                </>
+              )}
             </DialogContent>
-          </Dialog>
-
-          <Dialog open={isCameraCaptureOpen} onOpenChange={setCameraCaptureOpen}>
-                <DialogContent className='max-w-3xl'>
-                    <DialogHeader>
-                        <DialogTitle>Camera Capture</DialogTitle>
-                    </DialogHeader>
-                    <CameraCapture onPhotoTaken={handlePhotoTaken} />
-                </DialogContent>
           </Dialog>
 
           <div className="relative flex-1">
