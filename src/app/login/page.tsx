@@ -70,7 +70,7 @@ export default function LoginPage() {
               </Alert>
             )}
             <Button type="submit" className="w-full">
-              Unlock Prototype
+              Login to QUERRIES
             </Button>
           </form>
         </CardContent>

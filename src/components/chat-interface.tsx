@@ -14,10 +14,11 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './
 
 type ChatInterfaceProps = {
   initialMessage: MessageType;
+  language: string;
 };
 
 type ChatInterfaceHandle = {
-  triggerAction: (action: 'weather' | 'schemes') => void;
+  triggerAction: (action: 'weather' | 'schemes', lang: string) => void;
 };
 
 const UserMessage = ({ content, image }: { content: string, image?: string }) => (
@@ -58,7 +59,7 @@ const TypingIndicator = () => (
     </div>
 )
 
-const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ initialMessage }, ref) => {
+const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ initialMessage, language }, ref) => {
   const [messages, setMessages] = useState<MessageType[]>([initialMessage]);
   const [input, setInput] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -78,7 +79,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
     }
   }, [messages]);
 
-  const sendMessage = (messageText: string, imageUri?: string, imagePreviewUri?: string) => {
+  const sendMessage = (messageText: string, lang: string, imageUri?: string, imagePreviewUri?: string) => {
      if (isPending) return;
 
     const userMessage: MessageType = {
@@ -93,8 +94,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
 
     startTransition(async () => {
       const response = isVoiceMode 
-        ? await processVoiceModeMessage(currentMessages, messageText)
-        : await processUserMessage(messages, messageText, imageUri);
+        ? await processVoiceModeMessage(currentMessages, messageText, lang)
+        : await processUserMessage(messages, messageText, lang, imageUri);
       
       const assistantMessage: MessageType = {
         id: crypto.randomUUID(),
@@ -114,12 +115,22 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   }
 
   useImperativeHandle(ref, () => ({
-    triggerAction: (action: 'weather' | 'schemes') => {
-      if (action === 'weather') {
-        sendMessage('ഈ ആഴ്ചയിലെ കാലാവസ്ഥാ പ്രവചനം എന്താണ്?');
-      } else if (action === 'schemes') {
-        sendMessage('എനിക്ക് അപേക്ഷിക്കാൻ കഴിയുന്ന സർക്കാർ പദ്ധതികൾ ഏതൊക്കെയാണ്?');
+    triggerAction: (action: 'weather' | 'schemes', lang: string) => {
+      const questions = {
+        'weather': {
+          'en-IN': 'What is the weather forecast for this week?',
+          'ml-IN': 'ഈ ആഴ്ചയിലെ കാലാവസ്ഥാ പ്രവചനം എന്താണ്?',
+          'hi-IN': 'इस सप्ताह मौसम का पूर्वानुमान क्या है?',
+          'mr-IN': 'या आठवड्याचा हवामानाचा अंदाज काय आहे?',
+        },
+        'schemes': {
+          'en-IN': 'What government schemes can I apply for?',
+          'ml-IN': 'എനിക്ക് അപേക്ഷിക്കാൻ കഴിയുന്ന സർക്കാർ പദ്ധതികൾ ഏതൊക്കെയാണ്?',
+          'hi-IN': 'मैं किन सरकारी योजनाओं के लिए आवेदन कर सकता हूँ?',
+          'mr-IN': 'मी कोणत्या सरकारी योजनांसाठी अर्ज करू शकतो?',
+        }
       }
+      sendMessage(questions[action][lang] || questions[action]['en-IN'], lang);
     },
   }));
 
@@ -140,7 +151,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
     e.preventDefault();
     if ((!input.trim() && !imageData) || isPending) return;
 
-    sendMessage(input, imageData || undefined, imagePreview || undefined);
+    sendMessage(input, language, imageData || undefined, imagePreview || undefined);
 
     setInput('');
     setImagePreview(null);
@@ -216,7 +227,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={isVoiceMode ? "Speak your query..." : "നിങ്ങളുടെ ചോദ്യം ഇവിടെ ടൈപ്പ് ചെയ്യുക... (Type your question here...)"}
+              placeholder={isVoiceMode ? "Speak your query..." : "Ask your question here..."}
               className="pr-12 h-12 text-base rounded-full pl-6 shadow-inner bg-background"
               disabled={isPending}
             />

@@ -26,15 +26,16 @@ const ChatInterfaceWithNoSSR = dynamic(
 
 type ChatLoaderProps = {
   initialMessage: Message;
+  language: string;
 };
 
 type ChatLoaderHandle = {
-  triggerAction: (action: 'weather' | 'schemes') => void;
+  triggerAction: (action: 'weather' | 'schemes', lang: string) => void;
 };
 
 export const ChatLoader = forwardRef<ChatLoaderHandle, ChatLoaderProps>(
-  ({ initialMessage }, ref) => {
-    return <ChatInterfaceWithNoSSR initialMessage={initialMessage} ref={ref} />;
+  ({ initialMessage, language }, ref) => {
+    return <ChatInterfaceWithNoSSR initialMessage={initialMessage} language={language} ref={ref} />;
   }
 );
 
