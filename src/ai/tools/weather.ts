@@ -54,10 +54,12 @@ export const getWeatherTool = ai.defineTool(
       ]);
 
       if (!currentResponse.ok) {
-        throw new Error(`Failed to fetch current weather: ${currentResponse.statusText}`);
+        const errorText = await currentResponse.text();
+        throw new Error(`Failed to fetch current weather: ${currentResponse.statusText} - ${errorText}`);
       }
       if (!forecastResponse.ok) {
-        throw new Error(`Failed to fetch forecast: ${forecastResponse.statusText}`);
+        const errorText = await forecastResponse.text();
+        throw new Error(`Failed to fetch forecast: ${forecastResponse.statusText} - ${errorText}`);
       }
 
       const currentData = await currentResponse.json();
@@ -65,13 +67,16 @@ export const getWeatherTool = ai.defineTool(
 
       // Process forecast data to get one entry per day for the next 3 days
       const dailyForecasts: any = {};
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().getUTCDate();
       
       for (const item of forecastData.list) {
-          const date = new Date(item.dt * 1000).toISOString().split('T')[0];
-          // Check if it's not today and we don't have it yet
-          if (date > today && !dailyForecasts[date]) {
-              dailyForecasts[date] = {
+          const itemDate = new Date(item.dt * 1000);
+          const dayOfMonth = itemDate.getUTCDate();
+          
+          // Check if it's a future day and we don't have it yet.
+          // We'll take the first forecast entry we find for each future day.
+          if (dayOfMonth !== today && !dailyForecasts[dayOfMonth] && Object.keys(dailyForecasts).length < 3) {
+              dailyForecasts[dayOfMonth] = {
                   dt: item.dt,
                   temp: { day: item.main.temp },
                   weather: [{ main: item.weather[0].main }],
@@ -79,7 +84,7 @@ export const getWeatherTool = ai.defineTool(
           }
       }
       
-      const daily = Object.values(dailyForecasts).slice(0, 3);
+      const daily = Object.values(dailyForecasts);
       
       return {
         locationName: `${currentData.name}, ${currentData.sys.country}`,
