@@ -7,10 +7,11 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Bot, Send, User, BrainCircuit, Mic, Paperclip, X, EarOff, Ear, Camera } from 'lucide-react';
+import { Bot, Send, User, BrainCircuit, Mic, X, EarOff, Ear, Camera } from 'lucide-react';
 import React, { useEffect, useRef, useState, useTransition, useImperativeHandle, forwardRef } from 'react';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
+import { HowItWorksGuide } from './how-it-works-guide';
 
 type ChatInterfaceProps = {
   initialMessage: MessageType;
@@ -194,10 +195,13 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
         return !prev;
     });
   }
+  
+  const isInitialState = messages.length <= 1;
 
   return (
     <div className="flex flex-col h-full">
       <ScrollArea className="flex-1" ref={scrollAreaRef}>
+        {isInitialState && <HowItWorksGuide />}
         <div className="p-4 md:p-6 space-y-6">
           {messages.map((msg) =>
             msg.role === 'assistant' ? (
@@ -277,7 +281,3 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
 
 ChatInterface.displayName = 'ChatInterface';
 export default ChatInterface;
-
-    
-
-    
