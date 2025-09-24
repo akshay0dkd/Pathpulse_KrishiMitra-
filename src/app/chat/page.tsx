@@ -2,13 +2,14 @@
 
 import { ChatLoader } from '@/components/chat-loader';
 import { Logo } from '@/components/icons';
-import { Bug, CloudSun, Landmark, ShieldQuestion, LogOut, Globe } from 'lucide-react';
+import { Bug, CloudSun, Landmark, ShieldQuestion, LogOut, Globe, Menu } from 'lucide-react';
 import type { Message } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 const GREETINGS: Record<string, string> = {
   'ml-IN': `നമസ്കാരം! ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി, ക്രിഷിമിത്രയാണ്. രോഗങ്ങൾ, കീടങ്ങൾ, എരുക്കൾ, കാലാവസ്ഥ എന്നിവയെപ്പറ്റി എന്ത് പ്രശ്നമാണോ അത് ചോദിക്കാം.\n\n(English): Hello! I am KrishiMitra, your digital farming assistant. You can ask me about crop problems, pests, fertilizers, or weather.`,
@@ -17,10 +18,19 @@ const GREETINGS: Record<string, string> = {
   'mr-IN': `नमस्कार! मी कृषी मित्र, तुमचा डिजिटल शेती सहाय्यक आहे. तुम्ही मला पिकांचे आजार, कीटक, खते किंवा हवामानाबद्दल विचारू शकता.`,
 };
 
+const getLanguageName = (langCode: string) => {
+  try {
+    return new Intl.DisplayNames(['en'], { type: 'language' }).of(langCode.split('-')[0]) || 'Language';
+  } catch (e) {
+    return 'Language';
+  }
+}
+
 export default function ChatPage() {
   const router = useRouter();
-  const [language, setLanguage] = useState('en-IN'); // Default to English
+  const [language, setLanguage] = useState('en-IN');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const auth = localStorage.getItem('krishimitra-auth') === 'true';
@@ -48,10 +58,12 @@ export default function ChatPage() {
 
   const handleWeatherClick = () => {
     chatLoaderRef.current?.triggerAction('weather', language);
+    setMobileMenuOpen(false);
   };
   
   const handleSchemesClick = () => {
     chatLoaderRef.current?.triggerAction('schemes', language);
+    setMobileMenuOpen(false);
   };
 
   const handleLogout = () => {
@@ -69,15 +81,33 @@ export default function ChatPage() {
       content: GREETINGS[lang] || GREETINGS['en-IN'],
     }
     chatLoaderRef.current?.resetChat(newInitialMessage);
+    setMobileMenuOpen(false);
   };
   
-  if (!isAuthenticated) {
+  if (isAuthenticated === null) {
      return (
        <div className="flex h-full items-center justify-center bg-muted/20">
          <p>Authenticating...</p>
        </div>
      );
   }
+
+  const QuickActions = () => (
+    <>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Bug className="h-5 w-5 text-primary/80" />
+          <span className="text-sm">Pests & Diseases | കീടങ്ങളും രോഗങ്ങളും</span>
+        </div>
+        <button onClick={handleWeatherClick} className="flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground">
+          <CloudSun className="h-5 w-5 text-primary/80" />
+          <span className="text-sm">Weather | കാലാവസ്ഥ</span>
+        </button>
+        <button onClick={handleSchemesClick} className="flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground">
+          <Landmark className="h-5 w-5 text-primary/80" />
+          <span className="text-sm">Govt. Schemes | പദ്ധതികൾ</span>
+        </button>
+    </>
+  )
 
   return (
     <div className="flex h-full flex-col bg-muted/20">
@@ -87,29 +117,20 @@ export default function ChatPage() {
              <Logo className="h-6 w-6 text-primary" />
           </div>
           <h1 className="text-lg font-headline font-semibold text-foreground">
-             Digital AI Assistant
+             KrishiMitra AI
           </h1>
         </div>
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Bug className="h-5 w-5 text-primary/80" />
-            <span>Pests &amp; Diseases | കീടങ്ങളും രോഗങ്ങളും</span>
-          </div>
-          <button onClick={handleWeatherClick} className="flex items-center gap-2 hover:text-foreground transition-colors">
-            <CloudSun className="h-5 w-5 text-primary/80" />
-            <span>Weather | കാലാവസ്ഥ</span>
-          </button>
-          <button onClick={handleSchemesClick} className="flex items-center gap-2 hover:text-foreground transition-colors">
-            <Landmark className="h-5 w-5 text-primary/80" />
-            <span>Govt. Schemes | പദ്ധതികൾ</span>
-          </button>
+
+        {/* Desktop Header */}
+        <div className="hidden md:flex items-center gap-6 font-medium">
+          <QuickActions />
         </div>
-         <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Globe className="h-4 w-4 mr-2" />
-                  <span>{new Intl.DisplayNames(['en'], { type: 'language' }).of(language.split('-')[0])}</span>
+                  <span>{getLanguageName(language)}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -125,10 +146,62 @@ export default function ChatPage() {
                 Officer View
               </Link>
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
+            <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Logout">
+              <LogOut className="h-5 w-5" />
             </Button>
+        </div>
+
+        {/* Mobile Header */}
+        <div className="md:hidden">
+          <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full max-w-xs">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col space-y-4 py-6">
+                <div className="flex flex-col space-y-4 pl-2">
+                    <h3 className="font-semibold text-muted-foreground text-sm">Quick Actions</h3>
+                    <QuickActions/>
+                </div>
+                
+                <hr/>
+
+                <h3 className="font-semibold text-muted-foreground text-sm pl-2">Language</h3>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="justify-start">
+                      <Globe className="h-4 w-4 mr-2" />
+                      <span>{getLanguageName(language)}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuItem onClick={() => handleLanguageChange('en-IN')}>English</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleLanguageChange('ml-IN')}>മലയാളം (Malayalam)</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleLanguageChange('hi-IN')}>हिन्दी (Hindi)</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleLanguageChange('mr-IN')}>मराठी (Marathi)</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <hr/>
+
+                <Button asChild variant="outline">
+                  <Link href="/dashboard">
+                    <ShieldQuestion className="h-4 w-4 mr-2" />
+                    Officer View
+                  </Link>
+                </Button>
+                <Button variant="ghost" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </header>
       <main className="flex-1 overflow-hidden">

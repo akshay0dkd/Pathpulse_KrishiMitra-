@@ -18,6 +18,8 @@ export default function LoginPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    // In a real app, this would be a secure check against a backend.
+    // For this prototype, we use a simple hardcoded password.
     if (password === '1234') {
       localStorage.setItem('krishimitra-auth', 'true');
       router.replace('/chat');
@@ -34,7 +36,7 @@ export default function LoginPage() {
           <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-4">
             <Logo className="h-12 w-12 text-primary" />
           </div>
-          <CardTitle className="text-2xl">KrishiMitra Assistant</CardTitle>
+          <CardTitle className="text-2xl font-headline">KrishiMitra Assistant</CardTitle>
           <CardDescription>Enter the password to access the secure prototype.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -57,6 +59,7 @@ export default function LoginPage() {
                   size="icon"
                   className="absolute inset-y-0 right-0 h-full px-3"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
@@ -69,8 +72,8 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button type="submit" className="w-full">
-              Login to QUERRIES
+            <Button type="submit" className="w-full font-semibold">
+              Login to Assistant
             </Button>
           </form>
         </CardContent>
