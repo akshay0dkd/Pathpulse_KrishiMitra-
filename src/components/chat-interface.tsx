@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Bot, Send, User, BrainCircuit, Mic, Paperclip, X, EarOff, Ear } from 'lucide-react';
+import { Bot, Send, User, BrainCircuit, Mic, Paperclip, X, EarOff, Ear, Camera } from 'lucide-react';
 import React, { useEffect, useRef, useState, useTransition, useImperativeHandle, forwardRef } from 'react';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
@@ -220,13 +220,15 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
           </div>
         )}
         <form onSubmit={handleFormSubmit} className="relative flex items-center gap-2">
-           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
-          <Button type="button" size="icon" variant="ghost" className="h-12 w-12 rounded-full" onClick={() => fileInputRef.current?.click()} disabled={isPending || isVoiceMode}>
-            <Paperclip className="h-6 w-6" />
-          </Button>
+           <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" capture="environment" className="hidden" />
            <Button type="button" size="icon" variant={isVoiceMode ? "secondary" : "ghost"} className="h-12 w-12 rounded-full" onClick={toggleVoiceMode} disabled={isPending}>
             {isVoiceMode ? <EarOff className="h-6 w-6 text-destructive" /> : <Mic className="h-6 w-6" />}
           </Button>
+
+          <Button type="button" size="icon" variant="outline" className="h-12 w-12 rounded-full" onClick={() => fileInputRef.current?.click()} disabled={isPending || isVoiceMode}>
+            <Camera className="h-6 w-6" />
+          </Button>
+          
           <div className="relative flex-1">
             <Input
               value={input}
@@ -275,5 +277,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
 
 ChatInterface.displayName = 'ChatInterface';
 export default ChatInterface;
+
+    
 
     
