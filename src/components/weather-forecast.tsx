@@ -9,14 +9,16 @@ import { AlertCircle } from "lucide-react";
 
 
 const iconMap: Record<string, React.ElementType> = {
-    CloudSun,
+    Sun: Sun,
+    Clear: Sun,
+    CloudSun: CloudSun,
     Clouds: Cloud,
     Cloudy: Cloud,
-    Sun,
-    Clear: Sun,
     Rain: CloudRain,
     Drizzle: CloudRain,
+    CloudRain: CloudRain,
     Thunderstorm: CloudLightning,
+    CloudLightning: CloudLightning,
     Haze: Wind,
     Mist: Droplets,
     Smoke: Wind,

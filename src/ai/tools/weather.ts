@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A Genkit tool for fetching real-time weather data.
@@ -66,10 +65,11 @@ export const getWeatherTool = ai.defineTool(
 
       // Process forecast data to get one entry per day for the next 3 days
       const dailyForecasts: any = {};
-      forecastData.list.forEach((item: any) => {
+      const today = new Date().toISOString().split('T')[0];
+      
+      for (const item of forecastData.list) {
           const date = new Date(item.dt * 1000).toISOString().split('T')[0];
-          // Check if it's not today
-          const today = new Date().toISOString().split('T')[0];
+          // Check if it's not today and we don't have it yet
           if (date > today && !dailyForecasts[date]) {
               dailyForecasts[date] = {
                   dt: item.dt,
@@ -77,7 +77,7 @@ export const getWeatherTool = ai.defineTool(
                   weather: [{ main: item.weather[0].main }],
               };
           }
-      });
+      }
       
       const daily = Object.values(dailyForecasts).slice(0, 3);
       

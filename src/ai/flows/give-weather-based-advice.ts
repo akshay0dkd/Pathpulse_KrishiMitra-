@@ -34,7 +34,10 @@ Instruction: The user has provided their location (latitude: {{lat}}, longitude:
 
 Task:
 1.  **Fetch Weather**: Call the 'getWeatherTool' with the user's coordinates.
-2.  **Populate Weather Data**: Use the data returned from the tool to fill in the 'location', 'temperature', 'condition', 'conditionIcon', and 'daily' forecast fields in the output schema. The daily forecast should cover the next 3 days.
+2.  **Populate Weather Data**: Use the data returned from the tool to fill in the 'location', 'temperature', 'condition', 'conditionIcon', and 'daily' forecast fields in the output schema.
+    -   The 'temperature' and 'temp' fields should be formatted as a string with the degree symbol, e.g., "28°C".
+    -   The 'conditionIcon' for both current weather and the daily forecast MUST be one of the allowed values from the schema. Map the 'main' weather condition from the tool's output (e.g., "Clouds", "Rain", "Clear") to the corresponding icon name.
+    -   The 'day' for the daily forecast should be the day of the week (e.g., "Monday").
 3.  **Generate Farming Advice**: Based on the real weather data you just fetched, provide 3-4 simple, actionable bullet points of farming advice suitable for the conditions (e.g., if rain is coming, advise on drainage; if it's hot and sunny, advise on irrigation).
 4.  **Generate Spraying Advice**: Provide one short, specific sentence for the 'sprayingAdvice' field. This advice should be about the best time to spray crops, considering the real weather forecast.
 5.  **Translate for Language**: The content of 'location', 'condition', 'advice', and 'sprayingAdvice' strings should be in the user's specified language ('ml-IN', 'hi-IN', 'mr-IN', 'en-IN'). The 'day' and 'temp' can remain in English/numerals.
