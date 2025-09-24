@@ -1,3 +1,4 @@
+
 'use server';
 
 import { diagnoseWithPhoto } from '@/ai/flows/diagnose-with-photo';
@@ -111,12 +112,18 @@ export async function getWeatherForecast(
     console.error("Error getting weather forecast:", error);
     // Return a default error structure that the UI can handle.
     const errorMessage = (error as Error).message || "Could not fetch data";
+    
+    let displayMessage = 'Could not fetch weather data. Please try again.';
+    if (errorMessage.includes('OPENWEATHER_API_KEY')) {
+        displayMessage = 'API key is missing or invalid. Please check server configuration.';
+    } else if (errorMessage.includes('Failed to fetch')) {
+        displayMessage = 'Could not connect to the weather service. Please check your network and try again.';
+    }
+
     return {
       location: 'Error',
       temperature: '-',
-      condition: errorMessage.includes('OPENWEATHER_API_KEY') 
-        ? 'API key is missing. Please check server logs.'
-        : 'Could not fetch weather data. Please try again.',
+      condition: displayMessage,
       conditionIcon: 'Cloudy',
       advice: [],
       sprayingAdvice: '',
