@@ -18,6 +18,7 @@ export const WeatherForecastSchema = z.object({
   condition: z.string().describe('The current weather condition, e.g., "Partly Cloudy".'),
   conditionIcon: z.enum(['CloudSun', 'Cloudy', 'Sun', 'CloudRain', 'CloudLightning']).describe('An icon name representing the current condition.'),
   advice: z.array(z.string()).describe('An array of 3-4 actionable bullet points of farming advice for the current season.'),
+  sprayingAdvice: z.string().describe('A single, concise sentence about the ideal time for spraying crops based on the forecast.'),
   daily: z.array(z.object({
     day: z.string().describe('The day of the week, e.g., "Monday".'),
     conditionIcon: z.enum(['CloudSun', 'Cloudy', 'Sun', 'CloudRain', 'CloudLightning']).describe('An icon name for the day\'s forecast.'),

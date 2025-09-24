@@ -39,7 +39,8 @@ Task:
 2.  **Generate Current Conditions**: Create a plausible temperature, condition (e.g., "Partly Cloudy"), and a corresponding 'conditionIcon'.
 3.  **Generate 3-Day Forecast**: Create a plausible forecast for the next 3 days (e.g., Monday, Tuesday, Wednesday), including a conditionIcon and temperature for each day.
 4.  **Generate Farming Advice**: Provide 3-4 simple, actionable bullet points of farming advice suitable for the generated season and weather. Do NOT include a concluding sentence about checking other sources.
-5.  **Translate for Language**: While the schema fields are in English, the content of 'location', 'condition', and 'advice' strings should be in the user's specified language ('ml-IN', 'hi-IN', 'mr-IN', 'en-IN'). The 'day' and 'temp' can remain in English/numerals.
+5.  **Generate Spraying Advice**: Provide one short, specific sentence for the 'sprayingAdvice' field. This advice should be about the best time to spray crops, considering the simulated weather. For example, if rain is forecast, advise against spraying. If it is hot, suggest spraying in the cooler parts of the day.
+6.  **Translate for Language**: While the schema fields are in English, the content of 'location', 'condition', 'advice', and 'sprayingAdvice' strings should be in the user's specified language ('ml-IN', 'hi-IN', 'mr-IN', 'en-IN'). The 'day' and 'temp' can remain in English/numerals.
 
 Example for 'ml-IN' output (partial):
 {
@@ -51,6 +52,7 @@ Example for 'ml-IN' output (partial):
     "വയലുകളിൽ നിന്ന് വെള്ളം ഒലിപ്പിക്കാൻ ഡ്രെയിനേജ് വ്യവസ്ഥ ഉറപ്പാക്കുക.",
     "കനത്ത മഴയ്ക്ക് സാധ്യതയുള്ളതിനാൽ വിളകൾക്ക് താങ്ങ് നൽകുക."
   ],
+  "sprayingAdvice": "മഴ സാധ്യതയുള്ളതിനാൽ ഇന്ന് മരുന്ന് തളിക്കുന്നത് ഒഴിവാക്കുക.",
   ...
 }
 
