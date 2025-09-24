@@ -19,6 +19,7 @@ type ChatInterfaceProps = {
 
 type ChatInterfaceHandle = {
   triggerAction: (action: 'weather' | 'schemes', lang: string) => void;
+  resetChat: (newMessage: MessageType) => void;
 };
 
 const UserMessage = ({ content, image }: { content: string, image?: string }) => (
@@ -132,6 +133,9 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
       }
       sendMessage(questions[action][lang] || questions[action]['en-IN'], lang);
     },
+    resetChat: (newMessage: MessageType) => {
+      setMessages([newMessage]);
+    }
   }));
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -6,38 +6,44 @@ import { Bug, CloudSun, Landmark, ShieldQuestion, LogOut, Globe } from 'lucide-r
 import type { Message } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
+const GREETINGS: Record<string, string> = {
+  'ml-IN': `നമസ്കാരം! ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി, ക്രിഷിമിത്രയാണ്. രോഗങ്ങൾ, കീടങ്ങൾ, എരുക്കൾ, കാലാവസ്ഥ എന്നിവയെപ്പറ്റി എന്ത് പ്രശ്നമാണോ അത് ചോദിക്കാം.\n\n(English): Hello! I am KrishiMitra, your digital farming assistant. You can ask me about crop problems, pests, fertilizers, or weather.`,
+  'en-IN': `Hello! I am KrishiMitra, your digital farming assistant. You can ask me about crop diseases, pests, fertilizers, or weather.`,
+  'hi-IN': `नमस्ते! मैं कृषि मित्र, आपका डिजिटल खेती सहायक हूँ। आप मुझसे फसल के रोग, कीट, उर्वरक, या मौसम के बारे में पूछ सकते हैं।`,
+  'mr-IN': `नमस्कार! मी कृषी मित्र, तुमचा डिजिटल शेती सहाय्यक आहे. तुम्ही मला पिकांचे आजार, कीटक, खते किंवा हवामानाबद्दल विचारू शकता.`,
+};
 
 export default function ChatPage() {
   const router = useRouter();
   const [language, setLanguage] = useState('en-IN'); // Default to English
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem('krishimitra-auth') === 'true';
-    if (!isAuthenticated) {
+    const auth = localStorage.getItem('krishimitra-auth') === 'true';
+    setIsAuthenticated(auth);
+    if (!auth) {
       router.replace('/login');
     }
     const savedLang = localStorage.getItem('krishimitra-lang') || 'en-IN';
     setLanguage(savedLang);
   }, [router]);
-  
-  const greetings: Record<string, string> = {
-    'ml-IN': `നമസ്കാരം! ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി, ക്രിഷിമിത്രയാണ്. രോഗങ്ങൾ, കീടങ്ങൾ, എരുക്കൾ, കാലാവസ്ഥ എന്നിവയെപ്പറ്റി എന്ത് പ്രശ്നമാണോ അത് ചോദിക്കാം.\n\n(English): Hello! I am KrishiMitra, your digital farming assistant. You can ask me about crop problems, pests, fertilizers, or weather.`,
-    'en-IN': `Hello! I am KrishiMitra, your digital farming assistant. You can ask me about crop diseases, pests, fertilizers, or weather.`,
-    'hi-IN': `नमस्ते! मैं कृषि मित्र, आपका डिजिटल खेती सहायक हूँ। आप मुझसे फसल के रोग, कीट, उर्वरक, या मौसम के बारे में पूछ सकते हैं।`,
-    'mr-IN': `नमस्कार! मी कृषी मित्र, तुमचा डिजिटल शेती सहाय्यक आहे. तुम्ही मला पिकांचे आजार, कीटक, खते किंवा हवामानाबद्दल विचारू शकता.`,
-  };
 
-  const initialMessage: Message = {
-    id: 'init',
-    role: 'assistant' as const,
-    content: greetings[language] || greetings['en-IN'],
-  };
+  const initialMessage = useMemo<Message>(() => {
+    return {
+      id: 'init',
+      role: 'assistant' as const,
+      content: GREETINGS[language] || GREETINGS['en-IN'],
+    };
+  }, [language]);
+
 
   const chatLoaderRef = React.useRef<{
     triggerAction: (action: 'weather' | 'schemes', lang: string) => void;
+    resetChat: (newMessage: Message) => void;
   } | null>(null);
 
   const handleWeatherClick = () => {
@@ -57,8 +63,21 @@ export default function ChatPage() {
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
     localStorage.setItem('krishimitra-lang', lang);
-    window.location.reload(); // Reload to apply language change and reset chat
+    const newInitialMessage: Message = {
+      id: 'init-lang-change',
+      role: 'assistant',
+      content: GREETINGS[lang] || GREETINGS['en-IN'],
+    }
+    chatLoaderRef.current?.resetChat(newInitialMessage);
   };
+  
+  if (!isAuthenticated) {
+     return (
+       <div className="flex h-full items-center justify-center bg-muted/20">
+         <p>Authenticating...</p>
+       </div>
+     );
+  }
 
   return (
     <div className="flex h-full flex-col bg-muted/20">

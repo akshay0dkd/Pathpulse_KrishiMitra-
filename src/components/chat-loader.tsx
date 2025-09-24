@@ -31,6 +31,7 @@ type ChatLoaderProps = {
 
 type ChatLoaderHandle = {
   triggerAction: (action: 'weather' | 'schemes', lang: string) => void;
+  resetChat: (newMessage: Message) => void;
 };
 
 export const ChatLoader = forwardRef<ChatLoaderHandle, ChatLoaderProps>(
