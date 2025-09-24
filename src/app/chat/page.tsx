@@ -2,7 +2,7 @@
 
 import { ChatLoader } from '@/components/chat-loader';
 import { Logo } from '@/components/icons';
-import { Bug, CloudSun, Landmark, ShieldQuestion, LogOut, Globe, Menu } from 'lucide-react';
+import { Bug, CloudSun, Landmark, ShieldQuestion, LogOut, Globe, Menu, AlertCircle } from 'lucide-react';
 import type { Message } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -10,10 +10,12 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { WeatherForecast } from '@/components/weather-forecast';
 import type { GiveWeatherBasedAdviceOutput } from '@/ai/types/give-weather-based-advice';
 import { getWeatherForecast } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const GREETINGS: Record<string, string> = {
   'ml-IN': `നമസ്കാരം! ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി, ക്രിഷിമിത്രയാണ്. രോഗങ്ങൾ, കീടങ്ങൾ, എരുക്കൾ, കാലാവസ്ഥ എന്നിവയെപ്പറ്റി എന്ത് പ്രശ്നമാണോ അത് ചോദിക്കാം.\n\n(English): Hello! I am KrishiMitra, your digital farming assistant. You can ask me about crop problems, pests, fertilizers, or weather.`,
@@ -32,6 +34,7 @@ const getLanguageName = (langCode: string) => {
 
 export default function ChatPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [language, setLanguage] = useState('en-IN');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -68,12 +71,46 @@ export default function ChatPage() {
     setMobileMenuOpen(false);
   };
   
-  const handleWeatherClick = async () => {
+  const handleWeatherClick = () => {
     setWeatherDialogOpen(true);
     setWeatherLoading(true);
-    const data = await getWeatherForecast(language);
-    setWeatherData(data);
-    setWeatherLoading(false);
+
+    if (!navigator.geolocation) {
+      toast({
+        variant: 'destructive',
+        title: 'Location Error',
+        description: 'Geolocation is not supported by your browser.',
+      });
+      setWeatherLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        const data = await getWeatherForecast(language, latitude, longitude);
+        setWeatherData(data);
+        setWeatherLoading(false);
+      },
+      () => {
+        toast({
+          variant: 'destructive',
+          title: 'Location Error',
+          description: 'Unable to retrieve your location. Please enable location permissions.',
+        });
+        setWeatherLoading(false);
+         setWeatherData({
+            location: 'Permission Denied',
+            temperature: '-',
+            condition: 'Please enable location permissions in your browser to see the weather forecast.',
+            conditionIcon: 'Cloudy',
+            advice: [],
+            sprayingAdvice: '',
+            daily: [],
+        });
+      }
+    );
+    
     setMobileMenuOpen(false);
   }
 
@@ -93,6 +130,10 @@ export default function ChatPage() {
     }
     chatLoaderRef.current?.resetChat(newInitialMessage);
     setMobileMenuOpen(false);
+    // If weather dialog is open, refresh the data with the new language
+    if (isWeatherDialogOpen) {
+      handleWeatherClick();
+    }
   };
   
   if (isAuthenticated === null) {
@@ -125,7 +166,10 @@ export default function ChatPage() {
       <Dialog open={isWeatherDialogOpen} onOpenChange={setWeatherDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Weather Forecast</DialogTitle>
+            <DialogTitle>Weather & Farming Advice</DialogTitle>
+            <DialogDescription>
+              Live weather data for your current location.
+            </DialogDescription>
           </DialogHeader>
           <WeatherForecast data={weatherData} isLoading={isWeatherLoading} />
         </DialogContent>

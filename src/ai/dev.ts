@@ -9,3 +9,4 @@ import '@/ai/flows/recommend-treatment-options';
 import '@/ai/flows/voice-mode-flow';
 import '@/ai/flows/give-weather-based-advice';
 import '@/ai/flows/escalate-query';
+import '@/ai/tools/weather';

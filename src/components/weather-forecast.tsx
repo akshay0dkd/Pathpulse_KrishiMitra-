@@ -2,15 +2,31 @@
 
 import type { GiveWeatherBasedAdviceOutput } from "@/ai/types/give-weather-based-advice";
 import { Skeleton } from "./ui/skeleton";
-import { Cloud, CloudLightning, CloudRain, CloudSun, Sun, SprayCan, Clock } from "lucide-react";
+import { Cloud, CloudLightning, CloudRain, CloudSun, Sun, SprayCan, Wind, Droplets, Thermometer } from "lucide-react";
 import * as React from "react";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { AlertCircle } from "lucide-react";
+
 
 const iconMap: Record<string, React.ElementType> = {
     CloudSun,
+    Clouds: Cloud,
     Cloudy: Cloud,
     Sun,
-    CloudRain,
-    CloudLightning,
+    Clear: Sun,
+    Rain: CloudRain,
+    Drizzle: CloudRain,
+    Thunderstorm: CloudLightning,
+    Haze: Wind,
+    Mist: Droplets,
+    Smoke: Wind,
+    Dust: Wind,
+    Fog: Wind,
+    Sand: Wind,
+    Ash: Wind,
+    Squall: Wind,
+    Tornado: Wind,
+    Snow: Thermometer, // Placeholder
 };
 
 type WeatherForecastProps = {
@@ -50,8 +66,16 @@ export function WeatherForecast({ data, isLoading }: WeatherForecastProps) {
         );
     }
     
-    if (!data) {
-        return <p>No weather data available. Please try again.</p>;
+    if (!data || data.location === 'Error' || data.location === 'Permission Denied') {
+        return (
+             <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>{data?.location || 'Error'}</AlertTitle>
+                <AlertDescription>
+                    {data?.condition || 'An unknown error occurred. Please try again.'}
+                </AlertDescription>
+             </Alert>
+        )
     }
     
     const CurrentWeatherIcon = iconMap[data.conditionIcon] || Cloud;
@@ -77,30 +101,35 @@ export function WeatherForecast({ data, isLoading }: WeatherForecastProps) {
                 })}
             </div>
             
-            <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                <div className="flex items-start gap-3">
-                    <div className="bg-primary/10 text-primary p-2 rounded-full">
-                        <SprayCan className="h-5 w-5" />
-                    </div>
-                    <div>
-                        <h4 className="font-semibold text-primary">Spraying Schedule</h4>
-                        <p className="text-sm text-foreground">{data.sprayingAdvice}</p>
+            {data.sprayingAdvice && (
+                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                    <div className="flex items-start gap-3">
+                        <div className="bg-primary/10 text-primary p-2 rounded-full">
+                            <SprayCan className="h-5 w-5" />
+                        </div>
+                        <div>
+                            <h4 className="font-semibold text-primary">Spraying Schedule</h4>
+                            <p className="text-sm text-foreground">{data.sprayingAdvice}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
-            <div>
-                <h4 className="font-semibold mb-2">General Farming Advice</h4>
-                <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-4">
-                    {data.advice.map((tip, index) => (
-                        <li key={index}>{tip}</li>
-                    ))}
-                </ul>
-            </div>
+
+            {data.advice && data.advice.length > 0 && (
+                <div>
+                    <h4 className="font-semibold mb-2">General Farming Advice</h4>
+                    <ul className="space-y-2 text-sm text-muted-foreground list-disc pl-4">
+                        {data.advice.map((tip, index) => (
+                            <li key={index}>{tip}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
             
              <p className="text-xs text-center text-muted-foreground pt-4">
-                This is a simulated forecast for demonstration purposes. For accurate data, please consult your local Krishi Bhavan or the IMD website.
-            </p>
+                Weather data powered by OpenWeatherMap.
+             </p>
         </div>
     );
 }

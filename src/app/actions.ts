@@ -99,21 +99,27 @@ export async function processVoiceModeMessage(
 }
 
 export async function getWeatherForecast(
-  language: string
+  language: string,
+  lat: number,
+  lon: number
 ): Promise<GiveWeatherBasedAdviceOutput> {
   const lang = language || 'en-IN';
   try {
-    const result = await giveWeatherBasedAdvice({ query: 'weather forecast', language: lang });
+    const result = await giveWeatherBasedAdvice({ lat, lon, language: lang });
     return result;
   } catch (error) {
     console.error("Error getting weather forecast:", error);
-    // Return a default error structure
+    // Return a default error structure that the UI can handle.
+    const errorMessage = (error as Error).message || "Could not fetch data";
     return {
       location: 'Error',
       temperature: '-',
-      condition: 'Could not fetch data',
+      condition: errorMessage.includes('OPENWEATHER_API_KEY') 
+        ? 'API key is missing. Please check server logs.'
+        : 'Could not fetch weather data. Please try again.',
       conditionIcon: 'Cloudy',
-      advice: ['Please try again later.'],
+      advice: [],
+      sprayingAdvice: '',
       daily: [],
     };
   }
