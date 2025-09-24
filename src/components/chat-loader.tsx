@@ -30,7 +30,7 @@ type ChatLoaderProps = {
 };
 
 type ChatLoaderHandle = {
-  triggerAction: (action: 'weather' | 'schemes', lang: string) => void;
+  triggerAction: (action: 'schemes', lang: string) => void;
   resetChat: (newMessage: Message) => void;
 };
 

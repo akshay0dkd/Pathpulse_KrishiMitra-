@@ -21,7 +21,7 @@ type ChatInterfaceProps = {
 };
 
 type ChatInterfaceHandle = {
-  triggerAction: (action: 'weather' | 'schemes', lang: string) => void;
+  triggerAction: (action: 'schemes', lang: string) => void;
   resetChat: (newMessage: MessageType) => void;
 };
 
@@ -98,7 +98,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
         fileInputRef.current.value = '';
       }
     }
-  }, [imageData]);
+  }, [imageData, input, language]);
 
   const sendMessage = (messageText: string, lang: string, imageUri?: string, imagePreviewUri?: string) => {
      if (isPending) return;
@@ -136,14 +136,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   }
 
   useImperativeHandle(ref, () => ({
-    triggerAction: (action: 'weather' | 'schemes', lang: string) => {
+    triggerAction: (action: 'schemes', lang: string) => {
       const questions = {
-        'weather': {
-          'en-IN': 'What is the weather forecast for this week?',
-          'ml-IN': 'ഈ ആഴ്ചയിലെ കാലാവസ്ഥാ പ്രവചനം എന്താണ്?',
-          'hi-IN': 'इस सप्ताह मौसम का पूर्वानुमान क्या है?',
-          'mr-IN': 'या आठवड्याचा हवामानाचा अंदाज काय आहे?',
-        },
         'schemes': {
           'en-IN': 'What government schemes can I apply for?',
           'ml-IN': 'എനിക്ക് അപേക്ഷിക്കാൻ കഴിയുന്ന സർക്കാർ പദ്ധതികൾ ഏതൊക്കെയാണ്?',

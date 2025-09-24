@@ -2,6 +2,7 @@
 
 import { diagnoseWithPhoto } from '@/ai/flows/diagnose-with-photo';
 import { giveWeatherBasedAdvice } from '@/ai/flows/give-weather-based-advice';
+import type { GiveWeatherBasedAdviceOutput } from '@/ai/types/give-weather-based-advice';
 import { identifyPestDisease } from '@/ai/flows/identify-pest-disease-from-symptoms';
 import { provideGovernmentSchemeInformation } from '@/ai/flows/provide-government-scheme-information';
 import { processVoiceQuery as processVoiceQueryFlow } from '@/ai/flows/voice-mode-flow';
@@ -26,7 +27,9 @@ export async function processUserMessage(
     const lang = language || 'en-IN';
     // Keywords to identify the user's intent
     const isSchemeQuery = /scheme|subsidy|loan|kisan|yojana|പദ്ധതി|സബ്സിഡി|ലോൺ|കിസാൻ|योजना|कर्ज|सब्सिडी|योजना|कर्ज/i.test(message);
-    const isWeatherQuery = /weather|rain|monsoon|summer|കാലാവസ്ഥ|മഴ|വേനൽ|forecast|temperature|hot|dry|मौसम|बारिश|पूर्वानुमान|तापमान|हवामान|पाऊस/i.test(message);
+    
+    // We remove the weather query check here because it will be handled by a dedicated function.
+    // const isWeatherQuery = /weather|rain|monsoon|summer|കാലാവസ്ഥ|മഴ|വേനൽ|forecast|temperature|hot|dry|मौसम|बारिश|पूर्वानुमान|तापमान|हवामान|पाऊस/i.test(message);
 
     // 1. Handle Scheme Queries
     if (isSchemeQuery) {
@@ -34,19 +37,13 @@ export async function processUserMessage(
       return result.response;
     }
 
-    // 2. Handle Weather Queries
-    if (isWeatherQuery) {
-        const result = await giveWeatherBasedAdvice({ query: message, language: lang });
-        return result.response;
-    }
-
-    // 3. Handle Image Queries
+    // 2. Handle Image Queries
     if (imageDataUri) {
         const result = await diagnoseWithPhoto({ crop: 'unknown', photoDataUri: imageDataUri, language: lang });
         return result.response;
     }
 
-    // 4. Handle Text-based Crop Problem Queries
+    // 3. Handle Text-based Crop Problem Queries
     const analysis = await identifyPestDisease({ symptoms: message });
 
     if (analysis.confidence === 'low' || analysis.crop === 'unknown' || analysis.problem === 'unknown') {
@@ -65,7 +62,7 @@ export async function processUserMessage(
       return escalationResponse.response;
     }
     
-    // 5. Get Treatment Recommendations
+    // 4. Get Treatment Recommendations
     const treatmentResponse = await recommendTreatmentOptions({
         crop: analysis.crop,
         pestOrDisease: analysis.problem,
@@ -99,4 +96,25 @@ export async function processVoiceModeMessage(
         console.error("Error processing voice message:", error);
         return "Sorry, I ran into a problem. Please try again.";
     }
+}
+
+export async function getWeatherForecast(
+  language: string
+): Promise<GiveWeatherBasedAdviceOutput> {
+  const lang = language || 'en-IN';
+  try {
+    const result = await giveWeatherBasedAdvice({ query: 'weather forecast', language: lang });
+    return result;
+  } catch (error) {
+    console.error("Error getting weather forecast:", error);
+    // Return a default error structure
+    return {
+      location: 'Error',
+      temperature: '-',
+      condition: 'Could not fetch data',
+      conditionIcon: 'Cloudy',
+      advice: ['Please try again later.'],
+      daily: [],
+    };
+  }
 }
