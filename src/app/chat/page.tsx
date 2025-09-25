@@ -62,7 +62,7 @@ export default function ChatPage() {
 
 
   const chatLoaderRef = React.useRef<{
-    triggerAction: (action: 'schemes', lang: string) => void;
+    triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string) => void;
     resetChat: (newMessage: Message) => void;
   } | null>(null);
   
@@ -71,6 +71,11 @@ export default function ChatPage() {
     setMobileMenuOpen(false);
   };
   
+    const handlePestsClick = () => {
+    chatLoaderRef.current?.triggerAction('pests', language);
+    setMobileMenuOpen(false);
+  };
+
   const handleWeatherClick = () => {
     setWeatherDialogOpen(true);
     setWeatherLoading(true);
@@ -144,13 +149,13 @@ export default function ChatPage() {
      );
   }
 
-  const QuickActions = () => (
+  const MobileQuickActions = () => (
     <>
-        <div className="flex items-center gap-2 text-muted-foreground">
+        <button onClick={handlePestsClick} className="flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground">
           <Bug className="h-5 w-5 text-primary/80" />
           <span className="text-sm">Pests & Diseases</span>
-        </div>
-        <button onClick={handleWeatherClick} className="flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground">
+        </button>
+        <button onClick={() => chatLoaderRef.current?.triggerAction('weather', language)} className="flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground">
           <CloudSun className="h-5 w-5 text-primary/80" />
           <span className="text-sm">Weather</span>
         </button>
@@ -186,10 +191,7 @@ export default function ChatPage() {
             </h1>
           </div>
 
-          {/* Desktop Header */}
-          <div className="hidden md:flex items-center gap-6 font-medium">
-            <QuickActions />
-          </div>
+          {/* Desktop Header Actions are now in chat-interface */}
           <div className="hidden md:flex items-center gap-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -231,7 +233,7 @@ export default function ChatPage() {
                 <div className="flex flex-col space-y-4 py-6">
                   <div className="flex flex-col space-y-4 pl-2">
                       <h3 className="font-semibold text-muted-foreground text-sm">Quick Actions</h3>
-                      <QuickActions/>
+                      <MobileQuickActions/>
                   </div>
                   
                   <hr/>
@@ -270,7 +272,12 @@ export default function ChatPage() {
           </div>
         </header>
         <main className="flex-1 overflow-hidden">
-          <ChatLoader initialMessage={initialMessage} ref={chatLoaderRef} language={language} />
+          <ChatLoader 
+            initialMessage={initialMessage} 
+            ref={chatLoaderRef} 
+            language={language}
+            onWeatherClick={handleWeatherClick}
+            />
         </main>
       </div>
     </>

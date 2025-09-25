@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Bot, Send, User, BrainCircuit, Mic, X, EarOff, Ear, Camera, Upload, Video } from 'lucide-react';
+import { Bot, Send, User, BrainCircuit, Mic, X, Ear, Camera, Upload, Video, Bug, CloudSun, Landmark } from 'lucide-react';
 import React, { useEffect, useRef, useState, useTransition, useImperativeHandle, forwardRef } from 'react';
 import Image from 'next/image';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
@@ -18,10 +18,11 @@ import { CameraCapture } from './camera-capture';
 type ChatInterfaceProps = {
   initialMessage: MessageType;
   language: string;
+  onWeatherClick: () => void;
 };
 
 type ChatInterfaceHandle = {
-  triggerAction: (action: 'schemes', lang: string) => void;
+  triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string) => void;
   resetChat: (newMessage: MessageType) => void;
 };
 
@@ -65,7 +66,7 @@ const TypingIndicator = () => (
 
 type DialogMode = 'closed' | 'picker' | 'camera';
 
-const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ initialMessage, language }, ref) => {
+const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ initialMessage, language, onWeatherClick }, ref) => {
   const [messages, setMessages] = useState<MessageType[]>([initialMessage]);
   const [input, setInput] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -98,6 +99,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
         fileInputRef.current.value = '';
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageData, input, language]);
 
   const sendMessage = (messageText: string, lang: string, imageUri?: string, imagePreviewUri?: string) => {
@@ -136,16 +138,26 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   }
 
   useImperativeHandle(ref, () => ({
-    triggerAction: (action: 'schemes', lang: string) => {
+    triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string) => {
+       if (action === 'weather') {
+        onWeatherClick();
+        return;
+       }
       const questions = {
         'schemes': {
           'en-IN': 'What government schemes can I apply for?',
           'ml-IN': 'എനിക്ക് അപേക്ഷിക്കാൻ കഴിയുന്ന സർക്കാർ പദ്ധതികൾ ഏതൊക്കെയാണ്?',
           'hi-IN': 'मैं किन सरकारी योजनाओं के लिए आवेदन कर सकता हूँ?',
           'mr-IN': 'मी कोणत्या सरकारी योजनांसाठी अर्ज करू शकतो?',
+        },
+        'pests': {
+          'en-IN': 'My leaves have yellow spots. What could it be?',
+          'ml-IN': 'എന്റെ ഇലകളിൽ മഞ്ഞ പാടുകൾ ഉണ്ട്. അതെന്തായിരിക്കും?',
+          'hi-IN': 'मेरी पत्तियों पर पीले धब्बे हैं। यह क्या हो सकता है?',
+          'mr-IN': 'माझ्या पानांवर पिवळे डाग आहेत. ते काय असू शकते?',
         }
       }
-      sendMessage(questions[action][lang] || questions[action]['en-IN'], lang);
+      sendMessage(questions[action][lang as keyof typeof questions[typeof action]] || questions[action]['en-IN'], lang);
     },
     resetChat: (newMessage: MessageType) => {
       setMessages([newMessage]);
@@ -239,13 +251,13 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
         <form onSubmit={handleFormSubmit} className="relative flex items-center gap-2">
            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
            
-           <Button type="button" size="icon" variant={isVoiceMode ? "secondary" : "ghost"} className="h-12 w-12 rounded-full" onClick={toggleVoiceMode} disabled={isPending}>
-            {isVoiceMode ? <EarOff className="h-6 w-6 text-destructive" /> : <Mic className="h-6 w-6" />}
+           <Button type="button" size="icon" variant={isVoiceMode ? "secondary" : "ghost"} className="shrink-0 h-12 w-12 rounded-full" onClick={toggleVoiceMode} disabled={isPending}>
+            {isVoiceMode ? <X className="h-6 w-6 text-destructive" /> : <Mic className="h-6 w-6" />}
           </Button>
           
           <Dialog open={dialogMode !== 'closed'} onOpenChange={(open) => setDialogMode(open ? 'picker' : 'closed')}>
             <DialogTrigger asChild>
-                <Button type="button" size="icon" variant="outline" className="h-12 w-12 rounded-full" disabled={isPending || isVoiceMode}>
+                <Button type="button" size="icon" variant="outline" className="shrink-0 h-12 w-12 rounded-full" disabled={isPending || isVoiceMode}>
                     <Camera className="h-6 w-6" />
                 </Button>
             </DialogTrigger>
@@ -282,7 +294,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={isVoiceMode ? "Speak your query..." : "Ask your question here..."}
+              placeholder={isVoiceMode ? "Listening..." : "Ask or take a photo..."}
               className="pr-12 h-12 text-base rounded-full pl-6 shadow-inner bg-background"
               disabled={isPending}
             />
@@ -297,28 +309,20 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
             </Button>
           </div>
         </form>
-         <Accordion type="single" collapsible className="w-full mt-2">
-          <AccordionItem value="item-1" className="border-none">
-            <AccordionTrigger className="text-xs text-muted-foreground justify-center py-1 hover:no-underline">
-               <BrainCircuit className="h-3 w-3 mr-1.5" />
-               Powered by AI. How does it work?
-            </AccordionTrigger>
-            <AccordionContent className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-md">
-              <div className="flex gap-4">
-                <div className='text-center flex-1 p-2 rounded-md bg-background/50'>
-                  <Ear className="h-5 w-5 mx-auto text-primary mb-1"/>
-                  <h4 className='font-bold mb-1'>1. The Ears (NLP)</h4>
-                  <p>First, Natural Language Processing (NLP) helps the system understand your query, whether it's in Malayalam, English, or by photo. It figures out the key topics, like 'banana' and 'leaf spot'.</p>
-                </div>
-                <div className='text-center flex-1 p-2 rounded-md bg-background/50'>
-                  <BrainCircuit className="h-5 w-5 mx-auto text-primary mb-1"/>
-                  <h4 className='font-bold mb-1'>2. The Brain (LLM)</h4>
-                  <p>Then, a Large Language Model (LLM) acts as the expert. It takes the structured information from the NLP step and generates a helpful, detailed response in our bilingual format.</p>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+         <div className="flex justify-center items-center gap-2 border-t mt-3 pt-3">
+             <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => (ref as React.RefObject<ChatInterfaceHandle>)?.current?.triggerAction('pests', language)}>
+                <Bug className="h-4 w-4 mr-2 text-primary/80"/>
+                Pests & Diseases
+             </Button>
+             <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={onWeatherClick}>
+                <CloudSun className="h-4 w-4 mr-2 text-primary/80"/>
+                Weather
+             </Button>
+             <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => (ref as React.RefObject<ChatInterfaceHandle>)?.current?.triggerAction('schemes', language)}>
+                <Landmark className="h-4 w-4 mr-2 text-primary/80"/>
+                Govt. Schemes
+             </Button>
+        </div>
       </div>
     </div>
   );
