@@ -22,7 +22,7 @@ export default function LoginPage() {
     // For this prototype, we use a simple hardcoded password.
     if (password === '1234') {
       localStorage.setItem('krishimitra-auth', 'true');
-      router.replace('/chat');
+      router.replace('/home');
     } else {
       setError('Incorrect password. Please try again.');
       setPassword('');

@@ -31,7 +31,7 @@ Open your terminal or command prompt, navigate into your project's root folder, 
 
 3.  **Commit the files (save a snapshot of your project):**
     ```bash
-    git commit -m "feat: Initial commit of KrishiMitra prototype"
+    git add . "feat: Initial commit of KrishiMitra prototype"
     ```
 
 4.  **Link your local repository to the one on GitHub:**

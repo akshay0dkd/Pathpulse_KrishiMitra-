@@ -13,7 +13,7 @@ export default function App() {
     const authStatus = localStorage.getItem('krishimitra-auth') === 'true';
     setIsAuthenticated(authStatus);
     if (authStatus) {
-      router.replace('/chat');
+      router.replace('/home');
     }
   }, [router]);
 

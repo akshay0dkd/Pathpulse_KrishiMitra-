@@ -2,7 +2,7 @@
 
 import { ChatLoader } from '@/components/chat-loader';
 import { Logo } from '@/components/icons';
-import { Bug, CloudSun, Landmark, ShieldQuestion, LogOut, Globe, Menu, AlertCircle } from 'lucide-react';
+import { Bug, CloudSun, Landmark, ShieldQuestion, LogOut, Globe, Menu, AlertCircle, Home } from 'lucide-react';
 import type { Message } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -16,6 +16,7 @@ import type { GiveWeatherBasedAdviceOutput } from '@/ai/types/give-weather-based
 import { getWeatherForecast } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { BottomNav } from '@/components/bottom-nav';
 
 const GREETINGS: Record<string, string> = {
   'ml-IN': `നമസ്കാരം! ഞാൻ നിങ്ങളുടെ ഡിജിറ്റൽ കൃഷി സഹായി, ക്രിഷിമിത്രയാണ്. രോഗങ്ങൾ, കീടങ്ങൾ, എരുക്കൾ, കാലാവസ്ഥ എന്നിവയെപ്പറ്റി എന്ത് പ്രശ്നമാണോ അത് ചോദിക്കാം.\n\n(English): Hello! I am KrishiMitra, your digital farming assistant. You can ask me about crop problems, pests, fertilizers, or weather.`,
@@ -180,14 +181,17 @@ export default function ChatPage() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex h-full flex-col bg-muted/20">
+      <div className="flex h-full flex-col bg-muted/20 pb-16 md:pb-0">
         <header className="flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-lg">
+             <Link href="/home" className="md:hidden">
+               <Home className="h-6 w-6 text-muted-foreground" />
+             </Link>
+            <div className="hidden md:flex bg-primary/10 p-2 rounded-lg">
                <Logo className="h-6 w-6 text-primary" />
             </div>
             <h1 className="text-lg font-headline font-semibold text-foreground">
-               KrishiMitra AI
+               KrishiMitra AI Chat
             </h1>
           </div>
 
@@ -279,6 +283,11 @@ export default function ChatPage() {
             onWeatherClick={handleWeatherClick}
             />
         </main>
+        <div className="hidden md:block">
+            {/* No bottom nav on desktop */}
+        </div>
+        <BottomNav />
+
       </div>
     </>
   );
