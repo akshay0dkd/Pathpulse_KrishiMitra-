@@ -31,7 +31,7 @@ type ChatLoaderProps = {
 };
 
 type ChatLoaderHandle = {
-  triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string) => void;
+  triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string, query?: string) => void;
   resetChat: (newMessage: Message) => void;
 };
 

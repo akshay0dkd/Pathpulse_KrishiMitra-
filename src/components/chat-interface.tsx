@@ -1,4 +1,3 @@
-
 'use client';
 
 import { processUserMessage, processVoiceModeMessage, type Message as MessageType } from '@/app/actions';
@@ -22,7 +21,7 @@ type ChatInterfaceProps = {
 };
 
 type ChatInterfaceHandle = {
-  triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string) => void;
+  triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string, query?: string) => void;
   resetChat: (newMessage: MessageType) => void;
 };
 
@@ -138,10 +137,14 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   }
 
   useImperativeHandle(ref, () => ({
-    triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string) => {
+    triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string, query?: string) => {
        if (action === 'weather') {
         onWeatherClick();
         return;
+       }
+       if (query) {
+         sendMessage(query, lang);
+         return;
        }
       const questions = {
         'schemes': {
@@ -309,7 +312,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
             </Button>
           </div>
         </form>
-         <div className="flex justify-center items-center gap-2 border-t mt-3 pt-3">
+         <div className="hidden md:flex justify-center items-center gap-2 border-t mt-3 pt-3">
              <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => (ref as React.RefObject<ChatInterfaceHandle>)?.current?.triggerAction('pests', language)}>
                 <Bug className="h-4 w-4 mr-2 text-primary/80"/>
                 Pests & Diseases

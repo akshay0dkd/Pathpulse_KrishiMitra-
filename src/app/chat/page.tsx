@@ -7,7 +7,7 @@ import type { Message } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import React, { useEffect, useState, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
@@ -35,6 +35,7 @@ const getLanguageName = (langCode: string) => {
 
 export default function ChatPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [language, setLanguage] = useState('en-IN');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -63,9 +64,22 @@ export default function ChatPage() {
 
 
   const chatLoaderRef = React.useRef<{
-    triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string) => void;
+    triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string, query?: string) => void;
     resetChat: (newMessage: Message) => void;
   } | null>(null);
+
+  useEffect(() => {
+     const quickQuery = searchParams.get('q');
+     if (quickQuery && chatLoaderRef.current) {
+        // Use a timeout to ensure the component is fully ready
+        setTimeout(() => {
+             chatLoaderRef.current?.triggerAction('pests', language, quickQuery);
+             // Optional: remove query param from URL without reloading
+             router.replace('/chat', undefined);
+        }, 100);
+     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
   
   const handleSchemesClick = () => {
     chatLoaderRef.current?.triggerAction('schemes', language);
