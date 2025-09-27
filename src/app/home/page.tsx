@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Mic, Camera, Tag, Cloud, AlertTriangle, CloudDrizzle, MessageSquare, User, Home } from 'lucide-react';
+import { Mic, Camera, Tag, Cloud, AlertTriangle, CloudDrizzle, MessageSquare, User, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/icons';
 import { BottomNav } from '@/components/bottom-nav';
@@ -80,16 +80,16 @@ export default function HomePage() {
               <p className="text-xs text-muted-foreground">Press & speak your problem</p>
             </CardContent>
           </Card>
-          <Card className="shadow-lg hover:shadow-xl transition-shadow">
+          <Card className="shadow-lg hover.shadow-xl transition-shadow">
              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
               <Button size="icon" variant="outline" className="h-16 w-16 rounded-full bg-primary/10 mb-2 border-primary/20">
                 <Camera className="h-8 w-8 text-primary" />
               </Button>
-              <h3 className="font-semibold text-sm">ഫോട്ടോ എടുക്കുക</h3>
+              <h3 className="font-semibold text-sm">ഫോട്ടോ എടുത്ത് രോഗം നിർണയിക്കുക</h3>
               <p className="text-xs text-muted-foreground">Click picture of crop issue</p>
             </CardContent>
           </Card>
-          <Card className="shadow-lg hover:shadow-xl transition-shadow">
+          <Card className="shadow-lg hover.shadow-xl transition-shadow">
              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
               <Button size="icon" variant="outline" className="h-16 w-16 rounded-full bg-primary/10 mb-2 border-primary/20">
                 <Tag className="h-8 w-8 text-primary" />
@@ -98,7 +98,7 @@ export default function HomePage() {
               <p className="text-xs text-muted-foreground">Check current crop prices</p>
             </CardContent>
           </Card>
-          <Card className="shadow-lg hover:shadow-xl transition-shadow">
+          <Card className="shadow-lg hover.shadow-xl transition-shadow">
              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
               <Button size="icon" variant="outline" className="h-16 w-16 rounded-full bg-primary/10 mb-2 border-primary/20">
                 <Cloud className="h-8 w-8 text-primary" />
@@ -112,21 +112,30 @@ export default function HomePage() {
         {/* Active Alerts */}
         <section className="space-y-3 mb-6">
             <h2 className="font-bold text-lg text-foreground">Active Alerts</h2>
-            <Card className="bg-red-500/10 border-red-500/30">
+            <Card className="bg-destructive/10 border-destructive/30">
                 <CardContent className="p-3 flex items-center gap-3">
-                    <AlertTriangle className="h-6 w-6 text-red-600" />
+                    <AlertTriangle className="h-6 w-6 text-destructive" />
                     <div>
-                        <h4 className="font-bold text-red-700">കനത്ത കീടബാധ സാധ്യത</h4>
-                        <p className="text-sm text-red-700/80">Urgent: Pest Outbreak Alert</p>
+                        <h4 className="font-bold text-destructive">കനത്ത കീടബാധ സാധ്യത</h4>
+                        <p className="text-sm text-destructive/80">Urgent: Pest Outbreak Alert</p>
                     </div>
                 </CardContent>
             </Card>
              <Card className="bg-accent/10 border-accent/30">
                 <CardContent className="p-3 flex items-center gap-3">
-                    <CloudDrizzle className="h-6 w-6 text-orange-600" />
+                    <CloudDrizzle className="h-6 w-6 text-accent" />
                     <div>
-                        <h4 className="font-bold text-orange-700">ഇടവിട്ടുള്ള മഴയ്ക്ക് സാധ്യത</h4>
-                        <p className="text-sm text-orange-700/80">Warning: Intermittent rain expected</p>
+                        <h4 className="font-bold text-accent">ഇടവിട്ടുള്ള മഴയ്ക്ക് സാധ്യത</h4>
+                        <p className="text-sm text-accent/80">Warning: Intermittent rain expected</p>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card className="bg-primary/10 border-primary/30">
+                <CardContent className="p-3 flex items-center gap-3">
+                    <TrendingUp className="h-6 w-6 text-primary" />
+                    <div>
+                        <h4 className="font-bold text-primary">നേന്ത്രക്കായ വില ഉയരുന്നു</h4>
+                        <p className="text-sm text-primary/80">Price Alert: Nendran banana prices are up</p>
                     </div>
                 </CardContent>
             </Card>
@@ -138,14 +147,14 @@ export default function HomePage() {
           <Link href="/chat">
             <Card className="mb-3 bg-white hover:bg-gray-50">
               <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">தொடரவும்: വാഴയിലെ തവിട്ടുപുള്ളികൾക്ക്...</p>
+                <p className="text-sm text-muted-foreground">തുടരുക: വാഴയിലെ തവിട്ടുപുള്ളികൾക്ക്...</p>
                 <p className="text-sm font-semibold text-primary mt-1">Continue recent conversation...</p>
               </CardContent>
             </Card>
           </Link>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" className="bg-white">എന്റെ പാടത്തിന് എന്ത് മരുന്ന്?</Button>
-            <Button variant="outline" size="sm" className="bg-white">ഇന്ന് എന്ത് വിളവിലാണ്?</Button>
+            <Button variant="outline" size="sm" className="bg-white">ഇന്നത്തെ വില എന്താണ്?</Button>
             <Button variant="outline" size="sm" className="bg-white">മഴയുണ്ടാകുമോ?</Button>
           </div>
         </section>
