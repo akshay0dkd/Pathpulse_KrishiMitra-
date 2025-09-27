@@ -1,3 +1,4 @@
+
 'use client';
 
 import { processUserMessage, processVoiceModeMessage, type Message as MessageType } from '@/app/actions';
@@ -18,6 +19,7 @@ type ChatInterfaceProps = {
   initialMessage: MessageType;
   language: string;
   onWeatherClick: () => void;
+  quickActions?: React.ReactNode;
 };
 
 type ChatInterfaceHandle = {
@@ -65,7 +67,7 @@ const TypingIndicator = () => (
 
 type DialogMode = 'closed' | 'picker' | 'camera';
 
-const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ initialMessage, language, onWeatherClick }, ref) => {
+const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ initialMessage, language, onWeatherClick, quickActions }, ref) => {
   const [messages, setMessages] = useState<MessageType[]>([initialMessage]);
   const [input, setInput] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -87,8 +89,13 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
   }, [messages]);
   
   useEffect(() => {
+    // When language changes, reset the chat with the new initial message
+    setMessages([initialMessage]);
+  }, [initialMessage]);
+
+  useEffect(() => {
     if (imageData) {
-      const messageContent = input || 'Please analyze this image.';
+      const messageContent = input || (language === 'ml-IN' ? 'ഈ ചിത്രം വിശകലനം ചെയ്യുക.' : 'Please analyze this image.');
       sendMessage(messageContent, language, imageData, imagePreview || undefined);
       
       setInput('');
@@ -99,7 +106,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageData, input, language]);
+  }, [imageData]);
 
   const sendMessage = (messageText: string, lang: string, imageUri?: string, imagePreviewUri?: string) => {
      if (isPending) return;
@@ -111,12 +118,11 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
       image: imagePreviewUri,
     };
     
-    const currentMessages = [...messages, userMessage];
-    setMessages(currentMessages);
+    setMessages(prev => [...prev, userMessage]);
 
     startTransition(async () => {
       const response = isVoiceMode 
-        ? await processVoiceModeMessage(currentMessages, messageText, lang)
+        ? await processVoiceModeMessage(messages, messageText, lang)
         : await processUserMessage(messages, messageText, lang, imageUri);
       
       const assistantMessage: MessageType = {
@@ -131,8 +137,10 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
             title: "Error",
             description: "Failed to get a response from the assistant. Please try again.",
         })
+         setMessages((prev) => [...prev, {id: 'error', role: 'assistant', content: 'Sorry, I could not get a response.'}]);
+      } else {
+        setMessages((prev) => [...prev, assistantMessage]);
       }
-      setMessages((prev) => [...prev, assistantMessage]);
     });
   }
 
@@ -146,18 +154,15 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
          sendMessage(query, lang);
          return;
        }
+       // Fallback queries if none provided
       const questions = {
         'schemes': {
           'en-IN': 'What government schemes can I apply for?',
           'ml-IN': 'എനിക്ക് അപേക്ഷിക്കാൻ കഴിയുന്ന സർക്കാർ പദ്ധതികൾ ഏതൊക്കെയാണ്?',
-          'hi-IN': 'मैं किन सरकारी योजनाओं के लिए आवेदन कर सकता हूँ?',
-          'mr-IN': 'मी कोणत्या सरकारी योजनांसाठी अर्ज करू शकतो?',
         },
         'pests': {
           'en-IN': 'My leaves have yellow spots. What could it be?',
           'ml-IN': 'എന്റെ ഇലകളിൽ മഞ്ഞ പാടുകൾ ഉണ്ട്. അതെന്തായിരിക്കും?',
-          'hi-IN': 'मेरी पत्तियों पर पीले धब्बे हैं। यह क्या हो सकता है?',
-          'mr-IN': 'माझ्या पानांवर पिवळे डाग आहेत. ते काय असू शकते?',
         }
       }
       sendMessage(questions[action][lang as keyof typeof questions[typeof action]] || questions[action]['en-IN'], lang);
@@ -204,11 +209,16 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
 
   const toggleVoiceMode = () => {
     setIsVoiceMode(prev => {
-        if (!prev) { // Entering voice mode
+        const isEntering = !prev;
+        if (isEntering) { // Entering voice mode
+            const content = language === 'ml-IN'
+              ? "കൃഷിമിത്ര വോയിസ് ഹെൽപ്പിലേക്ക് സ്വാഗതം. നിങ്ങൾക്ക് മലയാളത്തിലോ ഇംഗ്ലീഷിലോ സംസാരിക്കാം. ഉദാഹരണത്തിന്, 'എൻ്റെ വാഴയുടെ ഇലകളിൽ മഞ്ഞ പാടുകൾ ഉണ്ട്' എന്ന് പറയാം. ഞാൻ ശ്രെദ്ധിക്കുന്നു..."
+              : "Welcome to KrishiMitra Voice Help. You can speak in Malayalam or English. Please tell me your problem. For example, say, 'My banana leaves have yellow spots.' I am listening...";
+
             const voiceGreeting: MessageType = {
                 id: crypto.randomUUID(),
                 role: 'assistant',
-                content: "Welcome to KrishiMitra Voice Help. You can speak to me in Malayalam or English. Please tell me your problem in a sentence or two. For example, you can say, 'My banana leaves have yellow spots,' or 'വാഴയിലെ പുള്ളികൾക്ക് എന്ത് ചെയ്യണം?'\n\nI am listening..."
+                content: content
             };
             setMessages(prevMsgs => [...prevMsgs, voiceGreeting]);
             clearImage();
@@ -216,7 +226,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
              const exitMessage: MessageType = {
                 id: crypto.randomUUID(),
                 role: 'assistant',
-                content: "Exiting voice mode."
+                content: language === 'ml-IN' ? "വോയിസ് മോഡ് നിർത്തുന്നു." : "Exiting voice mode."
             };
             setMessages(prevMsgs => [...prevMsgs, exitMessage]);
         }
@@ -260,7 +270,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
           
           <Dialog open={dialogMode !== 'closed'} onOpenChange={(open) => setDialogMode(open ? 'picker' : 'closed')}>
             <DialogTrigger asChild>
-                <Button type="button" size="icon" variant="outline" className="shrink-0 h-12 w-12 rounded-full" disabled={isPending || isVoiceMode}>
+                <Button type="button" size="icon" variant="outline" className="shrink-0 h-12 w-12 rounded-full shadow-sm hover:bg-muted/50" disabled={isPending || isVoiceMode}>
                     <Camera className="h-6 w-6" />
                 </Button>
             </DialogTrigger>
@@ -297,7 +307,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={isVoiceMode ? "Listening..." : "Ask or take a photo..."}
+              placeholder={isVoiceMode ? (language === 'ml-IN' ? "ശ്രെദ്ധിക്കുന്നു..." : "Listening...") : (language === 'ml-IN' ? "ചോദിക്കുക അല്ലെങ്കിൽ ഒരു ഫോട്ടോ എടുക്കുക..." : "Ask or take a photo...")}
               className="pr-12 h-12 text-base rounded-full pl-6 shadow-inner bg-background"
               disabled={isPending}
             />
@@ -313,18 +323,7 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
           </div>
         </form>
          <div className="hidden md:flex justify-center items-center gap-2 border-t mt-3 pt-3">
-             <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => (ref as React.RefObject<ChatInterfaceHandle>)?.current?.triggerAction('pests', language)}>
-                <Bug className="h-4 w-4 mr-2 text-primary/80"/>
-                Pests & Diseases
-             </Button>
-             <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={onWeatherClick}>
-                <CloudSun className="h-4 w-4 mr-2 text-primary/80"/>
-                Weather
-             </Button>
-             <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={() => (ref as React.RefObject<ChatInterfaceHandle>)?.current?.triggerAction('schemes', language)}>
-                <Landmark className="h-4 w-4 mr-2 text-primary/80"/>
-                Govt. Schemes
-             </Button>
+             {quickActions}
         </div>
       </div>
     </div>
@@ -333,3 +332,5 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
 
 ChatInterface.displayName = 'ChatInterface';
 export default ChatInterface;
+
+    

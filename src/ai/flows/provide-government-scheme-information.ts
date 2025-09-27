@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -31,8 +32,6 @@ const prompt = ai.definePrompt({
 Instruction: Respond in the language specified by the 'language' code: {{language}}.
 
 - For 'ml-IN', respond ONLY in Malayalam and add an (English): subtitle.
-- For 'hi-IN', respond ONLY in Hindi.
-- For 'mr-IN', respond ONLY in Marathi.
 - For 'en-IN', respond ONLY in English.
 
 Task: The user is asking about government schemes.
@@ -44,9 +43,6 @@ Task: The user is asking about government schemes.
 Example for 'ml-IN':
 പി എം കിസാൻ പദ്ധതിയിൽ എല്ലാ കൃഷിക്കാർക്കും വാർഷിക സഹായം ലഭിക്കും. അപ്ലിക്കേഷൻ നിങ്ങളുടെ സ്ഥാനീയ കൃഷി ഭവനത്തിൽ ചെന്ന് പൂരിപ്പിക്കുക.
 (English): The PM-KISAN scheme provides annual support to all farmers. Please visit your local Krishi Bhavan to complete the application.
-
-Example for 'hi-IN':
-पीएम-किसान योजना के तहत सभी किसानों को वार्षिक वित्तीय सहायता मिलती है। आवेदन करने के लिए कृपया अपने स्थानीय कृषि भवन में जाएँ।
 
 Example for 'en-IN':
 The PM-KISAN scheme provides annual financial support to all farmers. To apply, please visit your local Krishi Bhavan.
@@ -67,3 +63,5 @@ const provideGovernmentSchemeInformationFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    

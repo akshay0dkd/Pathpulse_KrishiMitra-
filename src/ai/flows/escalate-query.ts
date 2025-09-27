@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -31,8 +32,6 @@ const prompt = ai.definePrompt({
 Instruction: Respond in the language specified by the 'language' code: {{language}}.
 
 - For 'ml-IN', respond ONLY in Malayalam and add an (English): subtitle.
-- For 'hi-IN', respond ONLY in Hindi.
-- For 'mr-IN', respond ONLY in Marathi.
 - For 'en-IN', respond ONLY in English.
 
 Task: The user's query is too complex for you. Politely inform them that you are escalating the issue to a human expert.
@@ -44,9 +43,6 @@ Task: The user's query is too complex for you. Politely inform them that you are
 Example for 'ml-IN':
 നിങ്ങളുടെ ചോദ്യം ഞാൻ ഒരു കൃഷി ഓഫീസർക്ക് കൈമാറുന്നു. അദ്ദേഹം ഉടൻ താങ്കളുമായി ബന്ധപ്പെടുന്നതാണ്.
 (English): I am forwarding your question to an agricultural officer. He will contact you shortly.
-
-Example for 'hi-IN':
-मैं आपका प्रश्न एक कृषि अधिकारी को भेज रहा हूँ। वह जल्द ही आपसे संपर्क करेंगे।
 
 Example for 'en-IN':
 I am forwarding your question to an agricultural officer. They will contact you shortly.
@@ -67,3 +63,5 @@ const escalateQueryFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    

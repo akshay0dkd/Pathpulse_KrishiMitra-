@@ -1,3 +1,4 @@
+
 'use client';
 
 import { ChatLoader } from '@/components/chat-loader';
@@ -27,7 +28,9 @@ const GREETINGS: Record<string, string> = {
 
 const getLanguageName = (langCode: string) => {
   try {
-    return new Intl.DisplayNames(['en'], { type: 'language' }).of(langCode.split('-')[0]) || 'Language';
+    const language = langCode.split('-')[0];
+    if (language === 'ml') return 'മലയാളം';
+    return new Intl.DisplayNames(['en'], { type: 'language' }).of(language) || 'Language';
   } catch (e) {
     return 'Language';
   }
@@ -164,22 +167,46 @@ export default function ChatPage() {
      );
   }
 
-  const MobileQuickActions = () => (
-    <>
-        <button onClick={handlePestsClick} className="flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground">
-          <Bug className="h-5 w-5 text-primary/80" />
-          <span className="text-sm">Pests & Diseases</span>
-        </button>
-        <button onClick={() => chatLoaderRef.current?.triggerAction('weather', language)} className="flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground">
-          <CloudSun className="h-5 w-5 text-primary/80" />
-          <span className="text-sm">Weather</span>
-        </button>
-        <button onClick={handleSchemesClick} className="flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground">
-          <Landmark className="h-5 w-5 text-primary/80" />
-          <span className="text-sm">Govt. Schemes</span>
-        </button>
-    </>
-  )
+  const QuickActions = ({ isMobile = false }: { isMobile?: boolean }) => {
+    const actionPrompts = {
+      pests: {
+        'en-IN': 'My leaves have yellow spots. What could it be?',
+        'ml-IN': 'എന്റെ ഇലകളിൽ മഞ്ഞ പാടുകൾ ഉണ്ട്. അതെന്തായിരിക്കും?',
+      },
+      schemes: {
+        'en-IN': 'What government schemes can I apply for?',
+        'ml-IN': 'എനിക്ക് അപേക്ഷിക്കാൻ കഴിയുന്ന സർക്കാർ പദ്ധതികൾ ഏതൊക്കെയാണ്?',
+      },
+    };
+    
+    const onPestClick = () => {
+        chatLoaderRef.current?.triggerAction('pests', language, actionPrompts.pests[language as keyof typeof actionPrompts.pests]);
+        if(isMobile) setMobileMenuOpen(false);
+    }
+    const onSchemeClick = () => {
+        chatLoaderRef.current?.triggerAction('schemes', language, actionPrompts.schemes[language as keyof typeof actionPrompts.schemes]);
+        if(isMobile) setMobileMenuOpen(false);
+    }
+
+    const buttonClass = isMobile ? "flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground" : "text-muted-foreground";
+
+    return (
+        <>
+            <Button variant={isMobile ? 'ghost' : 'ghost'} size={isMobile ? 'default' : 'sm'} onClick={onPestClick} className={buttonClass}>
+              <Bug className="h-5 w-5 text-primary/80" />
+              <span className="text-sm">{language === 'ml-IN' ? 'കീടങ്ങളും രോഗങ്ങളും' : 'Pests & Diseases'}</span>
+            </Button>
+            <Button variant={isMobile ? 'ghost' : 'ghost'} size={isMobile ? 'default' : 'sm'} onClick={handleWeatherClick} className={buttonClass}>
+              <CloudSun className="h-5 w-5 text-primary/80" />
+              <span className="text-sm">{language === 'ml-IN' ? 'കാലാവസ്ഥ' : 'Weather'}</span>
+            </Button>
+            <Button variant={isMobile ? 'ghost' : 'ghost'} size={isMobile ? 'default' : 'sm'} onClick={onSchemeClick} className={buttonClass}>
+              <Landmark className="h-5 w-5 text-primary/80" />
+              <span className="text-sm">{language === 'ml-IN' ? 'സർക്കാർ പദ്ധതികൾ' : 'Govt. Schemes'}</span>
+            </Button>
+        </>
+    )
+  }
 
   return (
     <>
@@ -209,7 +236,6 @@ export default function ChatPage() {
             </h1>
           </div>
 
-          {/* Desktop Header Actions are now in chat-interface */}
           <div className="hidden md:flex items-center gap-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -221,8 +247,6 @@ export default function ChatPage() {
                 <DropdownMenuContent>
                   <DropdownMenuItem onClick={() => handleLanguageChange('en-IN')}>English</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleLanguageChange('ml-IN')}>മലയാളം (Malayalam)</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleLanguageChange('hi-IN')}>हिन्दी (Hindi)</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleLanguageChange('mr-IN')}>मराठी (Marathi)</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               <Button asChild variant="outline" size="sm">
@@ -251,7 +275,9 @@ export default function ChatPage() {
                 <div className="flex flex-col space-y-4 py-6">
                   <div className="flex flex-col space-y-4 pl-2">
                       <h3 className="font-semibold text-muted-foreground text-sm">Quick Actions</h3>
-                      <MobileQuickActions/>
+                      <div className="flex flex-col items-start space-y-4">
+                        <QuickActions isMobile={true} />
+                      </div>
                   </div>
                   
                   <hr/>
@@ -267,8 +293,6 @@ export default function ChatPage() {
                     <DropdownMenuContent className="w-56">
                       <DropdownMenuItem onClick={() => handleLanguageChange('en-IN')}>English</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleLanguageChange('ml-IN')}>മലയാളം (Malayalam)</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleLanguageChange('hi-IN')}>हिन्दी (Hindi)</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleLanguageChange('mr-IN')}>मराठी (Marathi)</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
 
@@ -295,6 +319,7 @@ export default function ChatPage() {
             ref={chatLoaderRef} 
             language={language}
             onWeatherClick={handleWeatherClick}
+            quickActions={<QuickActions />}
             />
         </main>
         <div className="hidden md:block">
@@ -306,3 +331,5 @@ export default function ChatPage() {
     </>
   );
 }
+
+    

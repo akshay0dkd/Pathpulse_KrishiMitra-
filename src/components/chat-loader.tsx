@@ -1,3 +1,4 @@
+
 'use client';
 
 import dynamic from 'next/dynamic';
@@ -28,6 +29,7 @@ type ChatLoaderProps = {
   initialMessage: Message;
   language: string;
   onWeatherClick: () => void;
+  quickActions?: React.ReactNode;
 };
 
 type ChatLoaderHandle = {
@@ -36,9 +38,11 @@ type ChatLoaderHandle = {
 };
 
 export const ChatLoader = forwardRef<ChatLoaderHandle, ChatLoaderProps>(
-  ({ initialMessage, language, onWeatherClick }, ref) => {
-    return <ChatInterfaceWithNoSSR initialMessage={initialMessage} language={language} onWeatherClick={onWeatherClick} ref={ref} />;
+  ({ initialMessage, language, onWeatherClick, quickActions }, ref) => {
+    return <ChatInterfaceWithNoSSR initialMessage={initialMessage} language={language} onWeatherClick={onWeatherClick} quickActions={quickActions} ref={ref} />;
   }
 );
 
 ChatLoader.displayName = 'ChatLoader';
+
+    
