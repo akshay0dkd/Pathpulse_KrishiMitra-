@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Mic, Camera, Tag, Cloud, AlertTriangle, CloudDrizzle, TrendingUp, User, Globe, Landmark } from 'lucide-react';
+import { Mic, Camera, Tag, Cloud, AlertTriangle, CloudDrizzle, TrendingUp, User, Globe, Landmark, ShieldQuestion } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/icons';
 import { BottomNav } from '@/components/bottom-nav';
@@ -47,6 +47,7 @@ const content = {
     quickQuestion2: 'What is today\'s price?',
     quickQuestion3: 'Will it rain?',
     profile: 'Profile',
+    officerView: 'Officer View',
     languages: {
       'en-IN': 'English',
       'ml-IN': 'മലയാളം (Malayalam)',
@@ -83,6 +84,7 @@ const content = {
     quickQuestion2: 'ഇന്നത്തെ വില എന്താണ്?',
     quickQuestion3: 'മഴയുണ്ടാകുമോ?',
     profile: 'പ്രൊഫൈൽ',
+    officerView: 'ഓഫീസർ വ്യൂ',
     languages: {
       'en-IN': 'English',
       'ml-IN': 'മലയാളം',
@@ -119,6 +121,7 @@ const content = {
     quickQuestion2: 'आज का भाव क्या है?',
     quickQuestion3: 'क्या बारिश होगी?',
     profile: 'प्रोफ़ाइल',
+    officerView: 'ऑफिसर व्यू',
     languages: {
       'en-IN': 'English',
       'ml-IN': 'मलयालम',
@@ -155,6 +158,7 @@ const content = {
     quickQuestion2: 'आजचा भाव काय आहे?',
     quickQuestion3: 'पाऊस पडेल का?',
     profile: 'प्रोफाइल',
+    officerView: 'ऑफिसर व्यू',
     languages: {
       'en-IN': 'English',
       'ml-IN': 'मल्याळम',
@@ -294,6 +298,11 @@ export default function HomePage() {
                   <DropdownMenuItem onClick={() => handleLanguageChange('mr-IN')}>मराठी (Marathi)</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Button asChild variant="ghost" size="icon">
+                <Link href="/dashboard" title={currentContent.officerView}>
+                  <ShieldQuestion className="h-6 w-6" />
+                </Link>
+              </Button>
                <Button asChild variant="ghost" size="icon" className="rounded-full">
                 <Link href="/profile">
                   <User className="h-6 w-6" />
@@ -436,5 +445,3 @@ export default function HomePage() {
     </>
   );
 }
-
-    
