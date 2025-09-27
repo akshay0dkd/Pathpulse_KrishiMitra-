@@ -10,6 +10,12 @@ import Link from 'next/link';
 import { Logo } from '@/components/icons';
 import { BottomNav } from '@/components/bottom-nav';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
+import { WeatherForecast } from '@/components/weather-forecast';
+import type { GiveWeatherBasedAdviceOutput } from '@/ai/types/give-weather-based-advice';
+import { getWeatherForecast } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
+
 
 const content = {
   'en-IN': {
@@ -23,8 +29,8 @@ const content = {
     photoDiagnosisSubtitle: 'Click picture of crop issue',
     marketPricesTitle: 'Check Prices',
     marketPricesSubtitle: 'Check current crop prices',
-    weatherAlertTitle: 'Weather Alerts',
-    weatherAlertSubtitle: 'Weather warnings & advice',
+    weatherAlertTitle: 'Weather & Advice',
+    weatherAlertSubtitle: 'Live forecast & warnings',
     govtSchemesTitle: 'Govt. Schemes',
     govtSchemesSubtitle: 'View available subsidies',
     activeAlerts: 'Active Alerts',
@@ -45,7 +51,7 @@ const content = {
       'en-IN': 'English',
       'ml-IN': 'മലയാളം (Malayalam)',
       'hi-IN': 'हिंदी (Hindi)',
-      'mr-IN': 'मराठी (Marathi)',
+      'mr-IN': 'മराठी (Marathi)',
     }
   },
   'ml-IN': {
@@ -59,8 +65,8 @@ const content = {
     photoDiagnosisSubtitle: 'Click picture of crop issue',
     marketPricesTitle: 'വിലകൾ പരിശോധിക്കുക',
     marketPricesSubtitle: 'Check current crop prices',
-    weatherAlertTitle: 'കാലാവസ്ഥ അലേർട്ട്',
-    weatherAlertSubtitle: 'Weather warnings & advice',
+    weatherAlertTitle: 'കാലാവസ്ഥ & ഉപദേശം',
+    weatherAlertSubtitle: 'Live forecast & warnings',
     govtSchemesTitle: 'സർക്കാർ പദ്ധതികൾ',
     govtSchemesSubtitle: 'View available subsidies',
     activeAlerts: 'Active Alerts',
@@ -81,7 +87,7 @@ const content = {
       'en-IN': 'English',
       'ml-IN': 'മലയാളം',
       'hi-IN': 'हिंदी',
-      'mr-IN': 'മराठी',
+      'mr-IN': 'मराठी',
     }
   },
   'hi-IN': {
@@ -95,8 +101,8 @@ const content = {
     photoDiagnosisSubtitle: 'फसल की तस्वीर क्लिक करें',
     marketPricesTitle: 'कीमतें जांचें',
     marketPricesSubtitle: 'फसल की कीमतें देखें',
-    weatherAlertTitle: 'मौसम अलर्ट',
-    weatherAlertSubtitle: 'मौसम की चेतावनी और सलाह',
+    weatherAlertTitle: 'मौसम और सलाह',
+    weatherAlertSubtitle: 'लाइव पूर्वानुमान और चेतावनी',
     govtSchemesTitle: 'सरकारी योजनाएं',
     govtSchemesSubtitle: 'उपलब्ध सब्सिडी देखें',
     activeAlerts: 'सक्रिय अलर्ट',
@@ -131,8 +137,8 @@ const content = {
     photoDiagnosisSubtitle: 'पिकाच्या समस्येचे चित्र घ्या',
     marketPricesTitle: 'भाव तपासा',
     marketPricesSubtitle: 'सध्याचे पिकांचे भाव तपासा',
-    weatherAlertTitle: 'हवामान सूचना',
-    weatherAlertSubtitle: 'हवामान इशारे आणि सल्ला',
+    weatherAlertTitle: 'हवामान आणि सल्ला',
+    weatherAlertSubtitle: 'थेट अंदाज आणि इशारे',
     govtSchemesTitle: 'सरकारी योजना',
     govtSchemesSubtitle: 'उपलब्ध अनुदान पहा',
     activeAlerts: 'सक्रिय सूचना',
@@ -163,15 +169,17 @@ const farmer = {
   village: 'ചാലക്കുടി',
 };
 
-const weather = {
-  temp: '28°C',
-};
 
 export default function HomePage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [language, setLanguage] = useState('ml-IN');
 
+  const [isWeatherDialogOpen, setWeatherDialogOpen] = useState(false);
+  const [weatherData, setWeatherData] = useState<GiveWeatherBasedAdviceOutput | null>(null);
+  const [isWeatherLoading, setWeatherLoading] = useState(false);
+  
   const currentContent = content[language as keyof typeof content] || content['en-IN'];
 
   useEffect(() => {
@@ -201,6 +209,47 @@ export default function HomePage() {
     }
   }
 
+  const handleWeatherClick = () => {
+    setWeatherDialogOpen(true);
+    setWeatherLoading(true);
+
+    if (!navigator.geolocation) {
+      toast({
+        variant: 'destructive',
+        title: 'Location Error',
+        description: 'Geolocation is not supported by your browser.',
+      });
+      setWeatherLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        const data = await getWeatherForecast(language, latitude, longitude);
+        setWeatherData(data);
+        setWeatherLoading(false);
+      },
+      () => {
+        toast({
+          variant: 'destructive',
+          title: 'Location Error',
+          description: 'Unable to retrieve your location. Please enable location permissions.',
+        });
+        setWeatherLoading(false);
+         setWeatherData({
+            location: 'Permission Denied',
+            temperature: '-',
+            condition: 'Please enable location permissions in your browser to see the weather forecast.',
+            conditionIcon: 'Cloudy',
+            advice: [],
+            sprayingAdvice: '',
+            daily: [],
+        });
+      }
+    );
+  }
+
   if (isAuthenticated === null) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -210,6 +259,18 @@ export default function HomePage() {
   }
 
   return (
+    <>
+    <Dialog open={isWeatherDialogOpen} onOpenChange={setWeatherDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Weather & Farming Advice</DialogTitle>
+            <DialogDescription>
+              Live weather data for your current location.
+            </DialogDescription>
+          </DialogHeader>
+          <WeatherForecast data={weatherData} isLoading={isWeatherLoading} />
+        </DialogContent>
+      </Dialog>
     <div className="flex flex-col min-h-screen bg-muted/20 pb-20">
       {/* Header */}
       <header className="bg-primary text-primary-foreground p-4 shadow-md">
@@ -245,10 +306,18 @@ export default function HomePage() {
               <p className="text-lg">{currentContent.greeting}, {farmer.name}!</p>
               <p className="text-sm opacity-90">{farmer.village}, {currentContent.checkIn}</p>
             </div>
-            <div className="text-right">
-              <p className="font-semibold text-lg">{weather.temp}</p>
-              <p className="text-sm opacity-90">{currentContent.weatherCondition}</p>
-            </div>
+            { weatherData && !isWeatherLoading ? (
+                 <div className="text-right">
+                    <p className="font-semibold text-lg">{weatherData.temperature}</p>
+                    <p className="text-sm opacity-90">{weatherData.condition}</p>
+                </div>
+            ) : (
+                 <div className="text-right">
+                    <p className="font-semibold text-lg">--°C</p>
+                    <p className="text-sm opacity-90">Loading...</p>
+                </div>
+            )
+            }
           </div>
         </div>
       </header>
@@ -291,10 +360,8 @@ export default function HomePage() {
           </Card>
           <Card className="shadow-lg hover:shadow-xl transition-shadow">
              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
-               <Button asChild size="icon" variant="outline" className="h-16 w-16 rounded-full bg-primary/10 mb-2 border-primary/20 hover:bg-primary/20">
-                 <Link href="/weather">
+               <Button size="icon" variant="outline" className="h-16 w-16 rounded-full bg-primary/10 mb-2 border-primary/20 hover:bg-primary/20" onClick={handleWeatherClick}>
                     <Cloud className="h-8 w-8 text-primary" />
-                 </Link>
                </Button>
               <h3 className="font-semibold text-sm">{currentContent.weatherAlertTitle}</h3>
               <p className="text-xs text-muted-foreground">{currentContent.weatherAlertSubtitle}</p>
@@ -366,6 +433,7 @@ export default function HomePage() {
       
       <BottomNav />
     </div>
+    </>
   );
 }
 
