@@ -3,7 +3,7 @@
 
 import { ChatLoader } from '@/components/chat-loader';
 import { Logo } from '@/components/icons';
-import { Bug, CloudSun, Landmark, ShieldQuestion, LogOut, Globe, Menu, AlertCircle, Home } from 'lucide-react';
+import { Bug, CloudSun, Landmark, ShieldQuestion, LogOut, Globe, Menu, AlertCircle, Home, ArrowLeft } from 'lucide-react';
 import type { Message } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -172,10 +172,14 @@ export default function ChatPage() {
       pests: {
         'en-IN': 'My leaves have yellow spots. What could it be?',
         'ml-IN': 'എന്റെ ഇലകളിൽ മഞ്ഞ പാടുകൾ ഉണ്ട്. അതെന്തായിരിക്കും?',
+        'hi-IN': 'मेरी पत्तियों पर पीले धब्बे हैं। यह क्या हो सकता है?',
+        'mr-IN': 'माझ्या पानांवर पिवळे डाग आहेत. ते काय असू शकते?',
       },
       schemes: {
         'en-IN': 'What government schemes can I apply for?',
         'ml-IN': 'എനിക്ക് അപേക്ഷിക്കാൻ കഴിയുന്ന സർക്കാർ പദ്ധതികൾ ഏതൊക്കെയാണ്?',
+        'hi-IN': 'मैं किन सरकारी योजनाओं के लिए आवेदन कर सकता हूँ?',
+        'mr-IN': 'मी कोणत्या सरकारी योजनांसाठी अर्ज करू शकतो?',
       },
     };
     
@@ -225,12 +229,17 @@ export default function ChatPage() {
       <div className="flex h-full flex-col bg-muted/20 pb-16 md:pb-0">
         <header className="flex h-16 items-center justify-between border-b bg-card px-4 md:px-6 shrink-0">
           <div className="flex items-center gap-3">
-             <Link href="/home" className="md:hidden">
-               <Home className="h-6 w-6 text-muted-foreground" />
-             </Link>
-            <div className="hidden md:flex bg-primary/10 p-2 rounded-lg">
-               <Logo className="h-6 w-6 text-primary" />
-            </div>
+             <Button variant="ghost" size="icon" asChild className="md:hidden">
+               <Link href="/home">
+                 <ArrowLeft className="h-6 w-6 text-muted-foreground" />
+               </Link>
+             </Button>
+             <Button variant="outline" size="sm" asChild className="hidden md:flex">
+                <Link href="/home">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Home
+                </Link>
+             </Button>
             <h1 className="text-lg font-headline font-semibold text-foreground">
                KrishiMitra AI Chat
             </h1>
@@ -247,6 +256,8 @@ export default function ChatPage() {
                 <DropdownMenuContent>
                   <DropdownMenuItem onClick={() => handleLanguageChange('en-IN')}>English</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleLanguageChange('ml-IN')}>മലയാളം (Malayalam)</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleLanguageChange('hi-IN')}>हिंदी (Hindi)</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleLanguageChange('mr-IN')}>मराठी (Marathi)</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               <Button asChild variant="outline" size="sm">
@@ -293,6 +304,8 @@ export default function ChatPage() {
                     <DropdownMenuContent className="w-56">
                       <DropdownMenuItem onClick={() => handleLanguageChange('en-IN')}>English</DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleLanguageChange('ml-IN')}>മലയാളം (Malayalam)</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLanguageChange('hi-IN')}>हिंदी (Hindi)</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleLanguageChange('mr-IN')}>मराठी (Marathi)</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
 
@@ -331,5 +344,3 @@ export default function ChatPage() {
     </>
   );
 }
-
-    

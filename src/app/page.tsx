@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -34,7 +35,7 @@ export default function App() {
   // This part will only be visible for a fraction of a second during redirection
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
-      <p className="text-foreground">Loading your experience...</p>
+      <p className="text-foreground">Redirecting to your dashboard...</p>
     </div>
   );
 }
