@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Mic, Camera, Tag, Cloud, AlertTriangle, CloudDrizzle, TrendingUp, User, Globe } from 'lucide-react';
+import { Mic, Camera, Tag, Cloud, AlertTriangle, CloudDrizzle, TrendingUp, User, Globe, Landmark } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from '@/components/icons';
 import { BottomNav } from '@/components/bottom-nav';
@@ -25,6 +25,8 @@ const content = {
     marketPricesSubtitle: 'Check current crop prices',
     weatherAlertTitle: 'Weather Alerts',
     weatherAlertSubtitle: 'Weather warnings & advice',
+    govtSchemesTitle: 'Govt. Schemes',
+    govtSchemesSubtitle: 'View available subsidies',
     activeAlerts: 'Active Alerts',
     pestAlertTitle: 'High Pest Infestation Risk',
     pestAlertSubtitle: 'Urgent: Pest Outbreak Alert for your region.',
@@ -59,6 +61,8 @@ const content = {
     marketPricesSubtitle: 'Check current crop prices',
     weatherAlertTitle: 'കാലാവസ്ഥ അലേർട്ട്',
     weatherAlertSubtitle: 'Weather warnings & advice',
+    govtSchemesTitle: 'സർക്കാർ പദ്ധതികൾ',
+    govtSchemesSubtitle: 'View available subsidies',
     activeAlerts: 'Active Alerts',
     pestAlertTitle: 'കനത്ത കീടബാധ സാധ്യത',
     pestAlertSubtitle: 'Urgent: Pest Outbreak Alert for your region.',
@@ -93,6 +97,8 @@ const content = {
     marketPricesSubtitle: 'फसल की कीमतें देखें',
     weatherAlertTitle: 'मौसम अलर्ट',
     weatherAlertSubtitle: 'मौसम की चेतावनी और सलाह',
+    govtSchemesTitle: 'सरकारी योजनाएं',
+    govtSchemesSubtitle: 'उपलब्ध सब्सिडी देखें',
     activeAlerts: 'सक्रिय अलर्ट',
     pestAlertTitle: 'कीट संक्रमण का खतरा',
     pestAlertSubtitle: 'तत्काल: आपके क्षेत्र के लिए कीट प्रकोप अलर्ट।',
@@ -127,6 +133,8 @@ const content = {
     marketPricesSubtitle: 'सध्याचे पिकांचे भाव तपासा',
     weatherAlertTitle: 'हवामान सूचना',
     weatherAlertSubtitle: 'हवामान इशारे आणि सल्ला',
+    govtSchemesTitle: 'सरकारी योजना',
+    govtSchemesSubtitle: 'उपलब्ध अनुदान पहा',
     activeAlerts: 'सक्रिय सूचना',
     pestAlertTitle: 'तीव्र कीड प्रादुर्भावाची शक्यता',
     pestAlertSubtitle: 'तातडीचे: तुमच्या क्षेत्रासाठी कीड प्रादुर्भावाची सूचना.',
@@ -251,7 +259,7 @@ export default function HomePage() {
           <Card className="shadow-lg hover:shadow-xl transition-shadow">
              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
                <Button asChild size="icon" variant="outline" className="h-16 w-16 rounded-full bg-primary/10 mb-2 border-primary/20 hover:bg-primary/20">
-                 <Link href="/chat">
+                 <Link href="/chat?action=voice">
                     <Mic className="h-8 w-8 text-primary" />
                  </Link>
                </Button>
@@ -262,7 +270,7 @@ export default function HomePage() {
           <Card className="shadow-lg hover:shadow-xl transition-shadow">
              <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
                 <Button asChild size="icon" variant="outline" className="h-16 w-16 rounded-full bg-primary/10 mb-2 border-primary/20 hover:bg-primary/20">
-                 <Link href="/chat">
+                 <Link href="/chat?action=camera">
                     <Camera className="h-8 w-8 text-primary" />
                  </Link>
                </Button>
@@ -290,6 +298,17 @@ export default function HomePage() {
                </Button>
               <h3 className="font-semibold text-sm">{currentContent.weatherAlertTitle}</h3>
               <p className="text-xs text-muted-foreground">{currentContent.weatherAlertSubtitle}</p>
+            </CardContent>
+          </Card>
+           <Card className="shadow-lg hover:shadow-xl transition-shadow">
+             <CardContent className="p-4 flex flex-col items-center justify-center text-center h-full">
+               <Button asChild size="icon" variant="outline" className="h-16 w-16 rounded-full bg-primary/10 mb-2 border-primary/20 hover:bg-primary/20">
+                 <Link href={`/chat?q=${encodeURIComponent(currentContent.languages['en-IN'] === 'English' ? 'What government schemes are available?' : 'ഏതൊക്കെ സർക്കാർ പദ്ധതികൾ ലഭ്യമാണ്?')}`}>
+                    <Landmark className="h-8 w-8 text-primary" />
+                 </Link>
+               </Button>
+              <h3 className="font-semibold text-sm">{currentContent.govtSchemesTitle}</h3>
+              <p className="text-xs text-muted-foreground">{currentContent.govtSchemesSubtitle}</p>
             </CardContent>
           </Card>
         </section>
