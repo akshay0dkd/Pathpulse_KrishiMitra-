@@ -272,8 +272,8 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
                   </DialogHeader>
                   <div className='grid grid-cols-2 gap-4'>
                       <Button variant="outline" size="lg" className="h-24 flex-col" onClick={() => setDialogMode('camera')}>
-                          <Video className='h-8 w-8 mb-2'/>
-                          Take Photo with Camera
+                          <Camera className='h-8 w-8 mb-2'/>
+                          Take Photo
                       </Button>
                       <Button variant="outline" size="lg" className="h-24 flex-col" onClick={() => fileInputRef.current?.click()}>
                           <Upload className='h-8 w-8 mb-2'/>

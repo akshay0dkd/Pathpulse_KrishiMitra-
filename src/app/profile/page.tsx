@@ -2,26 +2,34 @@
 
 import { BottomNav } from "@/components/bottom-nav";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ProfilePage() {
     return (
         <div className="flex flex-col min-h-screen bg-muted/40">
-            <header className="bg-background border-b p-4">
-                <div className="container mx-auto flex items-center gap-4">
+           <header className="bg-background border-b p-4 flex items-center justify-between md:justify-start md:gap-4 h-16 shrink-0">
+                <div className="md:hidden">
                     <Button variant="ghost" size="icon" asChild>
+                        <Link href="/home">
+                            <Home />
+                        </Link>
+                    </Button>
+                </div>
+                 <div className="hidden md:flex">
+                     <Button variant="ghost" size="icon" asChild>
                         <Link href="/home">
                             <ArrowLeft />
                         </Link>
                     </Button>
-                    <h1 className="text-xl font-semibold">Profile</h1>
                 </div>
+                <h1 className="text-xl font-semibold">My Profile</h1>
+                <div className="w-10 md:hidden"></div>
             </header>
             <main className="flex-1 p-4 md:p-6 flex items-center justify-center">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-2">Profile Page</h2>
-                    <p className="text-muted-foreground">This is a placeholder for the user profile page.</p>
+                    <h2 className="text-2xl font-bold mb-2">My Profile</h2>
+                    <p className="text-muted-foreground">This feature is coming soon.</p>
                 </div>
             </main>
             <BottomNav />

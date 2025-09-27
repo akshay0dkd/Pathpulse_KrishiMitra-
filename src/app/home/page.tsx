@@ -120,7 +120,7 @@ export default function HomePage() {
         {/* Active Alerts */}
         <section className="space-y-3 mb-6">
             <h2 className="font-bold text-lg text-foreground">Active Alerts</h2>
-            <Card className="bg-destructive/10 border-destructive/30">
+            <Card className="bg-destructive/10 border-destructive/30 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-3 flex items-center gap-3">
                     <AlertTriangle className="h-6 w-6 text-destructive shrink-0" />
                     <div>
@@ -129,7 +129,7 @@ export default function HomePage() {
                     </div>
                 </CardContent>
             </Card>
-             <Card className="bg-accent/10 border-accent/30">
+             <Card className="bg-accent/10 border-accent/30 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-3 flex items-center gap-3">
                     <CloudDrizzle className="h-6 w-6 text-accent shrink-0" />
                     <div>
@@ -138,7 +138,7 @@ export default function HomePage() {
                     </div>
                 </CardContent>
             </Card>
-            <Card className="bg-primary/10 border-primary/30">
+            <Card className="bg-primary/10 border-primary/30 shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-3 flex items-center gap-3">
                     <TrendingUp className="h-6 w-6 text-primary shrink-0" />
                     <div>
