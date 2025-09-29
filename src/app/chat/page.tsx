@@ -3,7 +3,7 @@
 
 import { ChatLoader } from '@/components/chat-loader';
 import { Logo } from '@/components/icons';
-import { Bug, CloudSun, Landmark, ShieldQuestion, LogOut, Globe, Menu, AlertCircle, Home, ArrowLeft } from 'lucide-react';
+import { Bug, CloudSun, Landmark, ShieldQuestion, Globe, Menu, ArrowLeft } from 'lucide-react';
 import type { Message } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -11,12 +11,11 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { WeatherForecast } from '@/components/weather-forecast';
 import type { GiveWeatherBasedAdviceOutput } from '@/ai/types/give-weather-based-advice';
 import { getWeatherForecast } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { BottomNav } from '@/components/bottom-nav';
 
 const GREETINGS: Record<string, string> = {
@@ -41,18 +40,12 @@ export default function ChatPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [language, setLanguage] = useState('en-IN');
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isWeatherDialogOpen, setWeatherDialogOpen] = useState(false);
   const [weatherData, setWeatherData] = useState<GiveWeatherBasedAdviceOutput | null>(null);
   const [isWeatherLoading, setWeatherLoading] = useState(false);
 
   useEffect(() => {
-    const auth = localStorage.getItem('krishimitra-auth') === 'true';
-    setIsAuthenticated(auth);
-    if (!auth) {
-      router.replace('/login');
-    }
     const savedLang = localStorage.getItem('krishimitra-lang') || 'en-IN';
     setLanguage(savedLang);
   }, [router]);
@@ -137,12 +130,6 @@ export default function ChatPage() {
     setMobileMenuOpen(false);
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('krishimitra-auth');
-    localStorage.removeItem('krishimitra-lang');
-    router.replace('/login');
-  };
-
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
     localStorage.setItem('krishimitra-lang', lang);
@@ -158,14 +145,6 @@ export default function ChatPage() {
       handleWeatherClick();
     }
   };
-  
-  if (isAuthenticated === null) {
-     return (
-       <div className="flex h-full items-center justify-center bg-muted/20">
-         <p>Authenticating...</p>
-       </div>
-     );
-  }
 
   const QuickActions = ({ isMobile = false }: { isMobile?: boolean }) => {
     const actionPrompts = {
@@ -266,9 +245,6 @@ export default function ChatPage() {
                   Officer View
                 </Link>
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Logout">
-                <LogOut className="h-5 w-5" />
-              </Button>
           </div>
 
           {/* Mobile Header */}
@@ -317,10 +293,6 @@ export default function ChatPage() {
                       Officer View
                     </Link>
                   </Button>
-                  <Button variant="ghost" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Logout
-                  </Button>
                 </div>
               </SheetContent>
             </Sheet>
@@ -344,5 +316,3 @@ export default function ChatPage() {
     </>
   );
 }
-
-    

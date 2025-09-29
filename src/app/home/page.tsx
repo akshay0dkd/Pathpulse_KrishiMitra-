@@ -177,7 +177,6 @@ const farmer = {
 export default function HomePage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [language, setLanguage] = useState('ml-IN');
 
   const [isWeatherDialogOpen, setWeatherDialogOpen] = useState(false);
@@ -187,11 +186,6 @@ export default function HomePage() {
   const currentContent = content[language as keyof typeof content] || content['en-IN'];
 
   useEffect(() => {
-    const auth = localStorage.getItem('krishimitra-auth') === 'true';
-    setIsAuthenticated(auth);
-    if (!auth) {
-      router.replace('/login');
-    }
     const savedLang = localStorage.getItem('krishimitra-lang') || 'ml-IN';
     setLanguage(savedLang);
   }, [router]);
@@ -251,14 +245,6 @@ export default function HomePage() {
             daily: [],
         });
       }
-    );
-  }
-
-  if (isAuthenticated === null) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <p>Loading Dashboard...</p>
-      </div>
     );
   }
 
