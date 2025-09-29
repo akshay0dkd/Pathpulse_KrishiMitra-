@@ -10,7 +10,6 @@ import Link from 'next/link';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { WeatherForecast } from '@/components/weather-forecast';
 import type { GiveWeatherBasedAdviceOutput } from '@/ai/types/give-weather-based-advice';
@@ -40,7 +39,6 @@ export default function ChatPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [language, setLanguage] = useState('en-IN');
-  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isWeatherDialogOpen, setWeatherDialogOpen] = useState(false);
   const [weatherData, setWeatherData] = useState<GiveWeatherBasedAdviceOutput | null>(null);
   const [isWeatherLoading, setWeatherLoading] = useState(false);
@@ -48,7 +46,7 @@ export default function ChatPage() {
   useEffect(() => {
     const savedLang = localStorage.getItem('krishimitra-lang') || 'en-IN';
     setLanguage(savedLang);
-  }, [router]);
+  }, []);
 
   const initialMessage = useMemo<Message>(() => {
     return {
@@ -79,12 +77,10 @@ export default function ChatPage() {
   
   const handleSchemesClick = () => {
     chatLoaderRef.current?.triggerAction('schemes', language);
-    setMobileMenuOpen(false);
   };
   
     const handlePestsClick = () => {
     chatLoaderRef.current?.triggerAction('pests', language);
-    setMobileMenuOpen(false);
   };
 
   const handleWeatherClick = () => {
@@ -126,8 +122,6 @@ export default function ChatPage() {
         });
       }
     );
-    
-    setMobileMenuOpen(false);
   }
 
   const handleLanguageChange = (lang: string) => {
@@ -139,14 +133,13 @@ export default function ChatPage() {
       content: GREETINGS[lang] || GREETINGS['en-IN'],
     }
     chatLoaderRef.current?.resetChat(newInitialMessage);
-    setMobileMenuOpen(false);
     // If weather dialog is open, refresh the data with the new language
     if (isWeatherDialogOpen) {
       handleWeatherClick();
     }
   };
 
-  const QuickActions = ({ isMobile = false }: { isMobile?: boolean }) => {
+  const QuickActions = () => {
     const actionPrompts = {
       pests: {
         'en-IN': 'My leaves have yellow spots. What could it be?',
@@ -164,26 +157,24 @@ export default function ChatPage() {
     
     const onPestClick = () => {
         chatLoaderRef.current?.triggerAction('pests', language, actionPrompts.pests[language as keyof typeof actionPrompts.pests]);
-        if(isMobile) setMobileMenuOpen(false);
     }
     const onSchemeClick = () => {
         chatLoaderRef.current?.triggerAction('schemes', language, actionPrompts.schemes[language as keyof typeof actionPrompts.schemes]);
-        if(isMobile) setMobileMenuOpen(false);
     }
 
-    const buttonClass = isMobile ? "flex items-center gap-2 hover:text-foreground transition-colors text-muted-foreground" : "text-muted-foreground";
+    const buttonClass = "text-muted-foreground";
 
     return (
         <>
-            <Button variant={isMobile ? 'ghost' : 'ghost'} size={isMobile ? 'default' : 'sm'} onClick={onPestClick} className={buttonClass}>
+            <Button variant={'ghost'} size={'sm'} onClick={onPestClick} className={buttonClass}>
               <Bug className="h-5 w-5 text-primary/80" />
               <span className="text-sm">{language === 'ml-IN' ? 'കീടങ്ങളും രോഗങ്ങളും' : 'Pests & Diseases'}</span>
             </Button>
-            <Button variant={isMobile ? 'ghost' : 'ghost'} size={isMobile ? 'default' : 'sm'} onClick={handleWeatherClick} className={buttonClass}>
+            <Button variant={'ghost'} size={'sm'} onClick={handleWeatherClick} className={buttonClass}>
               <CloudSun className="h-5 w-5 text-primary/80" />
               <span className="text-sm">{language === 'ml-IN' ? 'കാലാവസ്ഥ' : 'Weather'}</span>
             </Button>
-            <Button variant={isMobile ? 'ghost' : 'ghost'} size={isMobile ? 'default' : 'sm'} onClick={onSchemeClick} className={buttonClass}>
+            <Button variant={'ghost'} size={'sm'} onClick={onSchemeClick} className={buttonClass}>
               <Landmark className="h-5 w-5 text-primary/80" />
               <span className="text-sm">{language === 'ml-IN' ? 'സർക്കാർ പദ്ധതികൾ' : 'Govt. Schemes'}</span>
             </Button>
@@ -224,7 +215,7 @@ export default function ChatPage() {
             </h1>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
@@ -245,57 +236,6 @@ export default function ChatPage() {
                   Officer View
                 </Link>
               </Button>
-          </div>
-
-          {/* Mobile Header */}
-          <div className="md:hidden">
-            <Sheet open={isMobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-full max-w-xs">
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col space-y-4 py-6">
-                  <div className="flex flex-col space-y-4 pl-2">
-                      <h3 className="font-semibold text-muted-foreground text-sm">Quick Actions</h3>
-                      <div className="flex flex-col items-start space-y-4">
-                        <QuickActions isMobile={true} />
-                      </div>
-                  </div>
-                  
-                  <hr/>
-
-                  <h3 className="font-semibold text-muted-foreground text-sm pl-2">Language</h3>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="justify-start">
-                        <Globe className="h-4 w-4 mr-2" />
-                        <span>{getLanguageName(language)}</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56">
-                      <DropdownMenuItem onClick={() => handleLanguageChange('en-IN')}>English</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleLanguageChange('ml-IN')}>മലയാളം (Malayalam)</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleLanguageChange('hi-IN')}>हिंदी (Hindi)</DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleLanguageChange('mr-IN')}>मराठी (Marathi)</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  <hr/>
-
-                  <Button asChild variant="outline">
-                    <Link href="/dashboard">
-                      <ShieldQuestion className="h-4 w-4 mr-2" />
-                      Officer View
-                    </Link>
-                  </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
           </div>
         </header>
         <main className="flex-1 overflow-hidden">
