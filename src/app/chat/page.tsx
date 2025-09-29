@@ -73,7 +73,7 @@ export default function ChatPage() {
         }, 100);
      }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [language]);
 
   const initialMessage = useMemo<Message>(() => {
     return {
