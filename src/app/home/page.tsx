@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -52,7 +51,7 @@ const content = {
       'en-IN': 'English',
       'ml-IN': 'മലയാളം (Malayalam)',
       'hi-IN': 'हिंदी (Hindi)',
-      'mr-IN': 'മराठी (Marathi)',
+      'mr-IN': 'मराठी (Marathi)',
     }
   },
   'ml-IN': {
@@ -197,10 +196,10 @@ export default function HomePage() {
 
   const getLanguageName = (langCode: string) => {
     try {
-      const languageName = new Intl.DisplayNames([langCode.split('-')[0]], { type: 'language' }).of(langCode.split('-')[0]);
       if (langCode === 'ml-IN') return 'മലയാളം';
       if (langCode === 'hi-IN') return 'हिंदी';
       if (langCode === 'mr-IN') return 'मराठी';
+      const languageName = new Intl.DisplayNames([langCode.split('-')[0]], { type: 'language' }).of(langCode.split('-')[0]);
       return languageName || 'Language';
     } catch (e) {
       return 'Language';
@@ -271,10 +270,11 @@ export default function HomePage() {
               <h1 className="text-xl font-bold">KrishiMitra <span className="font-normal text-lg">{language === 'ml-IN' && 'കൃഷിമിത്രം'}</span></h1>
             </div>
             <div className="flex items-center gap-1">
-              <DropdownMenu>
+               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Globe className="h-6 w-6" />
+                  <Button variant="ghost" className="px-2">
+                    <Globe className="h-5 w-5 mr-2" />
+                    <span>{getLanguageName(language)}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
