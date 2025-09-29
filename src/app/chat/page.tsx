@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ChatLoader } from '@/components/chat-loader';
@@ -53,18 +52,7 @@ export default function ChatPage() {
   useEffect(() => {
     const savedLang = localStorage.getItem('krishimitra-lang') || 'en-IN';
     setLanguage(savedLang);
-  }, []);
 
-  const initialMessage = useMemo<Message>(() => {
-    return {
-      id: 'init',
-      role: 'assistant' as const,
-      content: GREETINGS[language] || GREETINGS['en-IN'],
-    };
-  }, [language]);
-
-
-  useEffect(() => {
      const quickQuery = searchParams.get('q');
      const action = searchParams.get('action');
 
@@ -85,6 +73,14 @@ export default function ChatPage() {
         }, 100);
      }
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const initialMessage = useMemo<Message>(() => {
+    return {
+      id: 'init',
+      role: 'assistant' as const,
+      content: GREETINGS[language] || GREETINGS['en-IN'],
+    };
   }, [language]);
   
   const handleSchemesClick = () => {

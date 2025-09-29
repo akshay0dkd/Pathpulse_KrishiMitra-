@@ -188,6 +188,24 @@ export default function HomePage() {
     const savedLang = localStorage.getItem('krishimitra-lang') || 'ml-IN';
     setLanguage(savedLang);
   }, [router]);
+
+    useEffect(() => {
+    // Fetch weather on initial load silently
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          const data = await getWeatherForecast(language, latitude, longitude);
+          setWeatherData(data);
+        },
+        () => {
+          // Fail silently on initial load
+          console.error("Could not get location for initial weather fetch.");
+        }
+      );
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
   
   const handleLanguageChange = (lang: string) => {
     setLanguage(lang);
