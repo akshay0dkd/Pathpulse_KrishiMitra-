@@ -35,6 +35,8 @@ type ChatLoaderProps = {
 type ChatLoaderHandle = {
   triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string, query?: string) => void;
   resetChat: (newMessage: Message) => void;
+  toggleVoiceMode: () => void;
+  openCameraDialog: () => void;
 };
 
 export const ChatLoader = forwardRef<ChatLoaderHandle, ChatLoaderProps>(
@@ -44,5 +46,3 @@ export const ChatLoader = forwardRef<ChatLoaderHandle, ChatLoaderProps>(
 );
 
 ChatLoader.displayName = 'ChatLoader';
-
-    

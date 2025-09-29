@@ -25,6 +25,8 @@ type ChatInterfaceProps = {
 type ChatInterfaceHandle = {
   triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string, query?: string) => void;
   resetChat: (newMessage: MessageType) => void;
+  toggleVoiceMode: () => void;
+  openCameraDialog: () => void;
 };
 
 const UserMessage = ({ content, image }: { content: string, image?: string }) => (
@@ -144,6 +146,33 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
     });
   }
 
+  const toggleVoiceMode = () => {
+    setIsVoiceMode(prev => {
+        const isEntering = !prev;
+        if (isEntering) { // Entering voice mode
+            const content = language === 'ml-IN'
+              ? "കൃഷിമിത്ര വോയിസ് ഹെൽപ്പിലേക്ക് സ്വാഗതം. നിങ്ങൾക്ക് മലയാളത്തിലോ ഇംഗ്ലീഷിലോ സംസാരിക്കാം. ഉദാഹരണത്തിന്, 'എൻ്റെ വാഴയുടെ ഇലകളിൽ മഞ്ഞ പാടുകൾ ഉണ്ട്' എന്ന് പറയാം. ഞാൻ ശ്രെദ്ധിക്കുന്നു..."
+              : "Welcome to KrishiMitra Voice Help. You can speak in Malayalam or English. Please tell me your problem. For example, say, 'My banana leaves have yellow spots.' I am listening...";
+
+            const voiceGreeting: MessageType = {
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: content
+            };
+            setMessages(prevMsgs => [...prevMsgs, voiceGreeting]);
+            clearImage();
+        } else { // Exiting voice mode
+             const exitMessage: MessageType = {
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: language === 'ml-IN' ? "വോയിസ് മോഡ് നിർത്തുന്നു." : "Exiting voice mode."
+            };
+            setMessages(prevMsgs => [...prevMsgs, exitMessage]);
+        }
+        return !prev;
+    });
+  }
+  
   useImperativeHandle(ref, () => ({
     triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string, query?: string) => {
        if (action === 'weather') {
@@ -169,6 +198,12 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
     },
     resetChat: (newMessage: MessageType) => {
       setMessages([newMessage]);
+    },
+    toggleVoiceMode: () => {
+        toggleVoiceMode();
+    },
+    openCameraDialog: () => {
+        setDialogMode('picker');
     }
   }));
 
@@ -207,33 +242,6 @@ const ChatInterface = forwardRef<ChatInterfaceHandle, ChatInterfaceProps>(({ ini
     }
   }
 
-  const toggleVoiceMode = () => {
-    setIsVoiceMode(prev => {
-        const isEntering = !prev;
-        if (isEntering) { // Entering voice mode
-            const content = language === 'ml-IN'
-              ? "കൃഷിമിത്ര വോയിസ് ഹെൽപ്പിലേക്ക് സ്വാഗതം. നിങ്ങൾക്ക് മലയാളത്തിലോ ഇംഗ്ലീഷിലോ സംസാരിക്കാം. ഉദാഹരണത്തിന്, 'എൻ്റെ വാഴയുടെ ഇലകളിൽ മഞ്ഞ പാടുകൾ ഉണ്ട്' എന്ന് പറയാം. ഞാൻ ശ്രെദ്ധിക്കുന്നു..."
-              : "Welcome to KrishiMitra Voice Help. You can speak in Malayalam or English. Please tell me your problem. For example, say, 'My banana leaves have yellow spots.' I am listening...";
-
-            const voiceGreeting: MessageType = {
-                id: crypto.randomUUID(),
-                role: 'assistant',
-                content: content
-            };
-            setMessages(prevMsgs => [...prevMsgs, voiceGreeting]);
-            clearImage();
-        } else { // Exiting voice mode
-             const exitMessage: MessageType = {
-                id: crypto.randomUUID(),
-                role: 'assistant',
-                content: language === 'ml-IN' ? "വോയിസ് മോഡ് നിർത്തുന്നു." : "Exiting voice mode."
-            };
-            setMessages(prevMsgs => [...prevMsgs, exitMessage]);
-        }
-        return !prev;
-    });
-  }
-  
   const isInitialState = messages.length <= 1;
 
   return (

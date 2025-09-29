@@ -7,7 +7,7 @@ import { Bug, CloudSun, Landmark, ShieldQuestion, Globe, Menu, ArrowLeft } from 
 import type { Message } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -43,6 +43,13 @@ export default function ChatPage() {
   const [weatherData, setWeatherData] = useState<GiveWeatherBasedAdviceOutput | null>(null);
   const [isWeatherLoading, setWeatherLoading] = useState(false);
 
+  const chatLoaderRef = useRef<{
+    triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string, query?: string) => void;
+    resetChat: (newMessage: Message) => void;
+    toggleVoiceMode: () => void;
+    openCameraDialog: () => void;
+  } | null>(null);
+
   useEffect(() => {
     const savedLang = localStorage.getItem('krishimitra-lang') || 'en-IN';
     setLanguage(savedLang);
@@ -57,19 +64,24 @@ export default function ChatPage() {
   }, [language]);
 
 
-  const chatLoaderRef = React.useRef<{
-    triggerAction: (action: 'schemes' | 'pests' | 'weather', lang: string, query?: string) => void;
-    resetChat: (newMessage: Message) => void;
-  } | null>(null);
-
   useEffect(() => {
      const quickQuery = searchParams.get('q');
-     if (quickQuery && chatLoaderRef.current) {
+     const action = searchParams.get('action');
+
+     if (chatLoaderRef.current) {
         // Use a timeout to ensure the component is fully ready
         setTimeout(() => {
-             chatLoaderRef.current?.triggerAction('pests', language, quickQuery);
-             // Optional: remove query param from URL without reloading
-             router.replace('/chat', undefined);
+            if (quickQuery) {
+                chatLoaderRef.current?.triggerAction('pests', language, quickQuery);
+            }
+            if (action === 'voice') {
+                chatLoaderRef.current?.toggleVoiceMode();
+            }
+            if (action === 'camera') {
+                chatLoaderRef.current?.openCameraDialog();
+            }
+            // Optional: remove query param from URL without reloading
+            router.replace('/chat', undefined);
         }, 100);
      }
   // eslint-disable-next-line react-hooks/exhaustive-deps
